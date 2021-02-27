@@ -4,6 +4,57 @@ const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
 } = tiny;
 
+class Handlebars {
+
+    constructor() {
+        this.shapes = {
+            'stick': new defs.Rounded_Capped_Cylinder(50, 32, [[0, 10], [0, 5]]),
+            'loop': new defs.Torus(15,15)
+        };
+        this.materials = {
+            metal: new Material(new defs.Phong_Shader(),
+                {ambient: .2, diffusivity: .8, specularity: 0, color: hex_color("#707070")})
+        }
+        this.simulateStop = false;
+    }
+
+    create_handlebars(t, context, program_state, a, simulateStop) {
+        let i = 0;
+        let newT = -2;
+        for(i = 0; i < 5; i++) {
+            let model_transform = Mat4.identity();
+            model_transform = model_transform.times(Mat4.translation(newT, 0, 0));
+            if (simulateStop)
+                model_transform = model_transform.times(Mat4.rotation(a, 0, 0, 1));
+            else 
+                model_transform = model_transform.times(Mat4.rotation(0.5/8.0 + 0.5/8.0*Math.sin(2*t), 0, 0, 1));
+            model_transform = model_transform.times(Mat4.rotation(1.54, 1, 0, 0));
+            model_transform = model_transform.times(Mat4.scale(0.07, 0.08, 0.7));
+            this.shapes.stick.draw(context, program_state, model_transform, this.materials.metal);
+
+            let model_transform_h = Mat4.identity();
+            model_transform_h = model_transform_h.times(Mat4.translation(newT, 0, 0));
+            if(simulateStop)
+                model_transform_h = model_transform_h.times(Mat4.rotation(a, 0, 0, 1));
+            else 
+                model_transform_h = model_transform_h.times(Mat4.rotation(0.5/8.0 + 0.5/8.0*Math.sin(2*t), 0, 0, 1));
+            model_transform_h = model_transform_h.times(Mat4.translation(0, -0.6, 0));
+            model_transform_h = model_transform_h.times(Mat4.rotation(1.3, 1, 0, 0));
+            model_transform_h = model_transform_h.times(Mat4.rotation(0.2, 0, 0, 1));
+            model_transform_h = model_transform_h.times(Mat4.rotation(1.5, 0, 1, 0));
+            model_transform_h = model_transform_h.times(Mat4.scale(0.3, 0.3, 0.1));
+            this.shapes.loop.draw(context, program_state, model_transform_h, this.materials.metal);
+
+            newT += 1;
+        }
+        let model_transform_bar = Mat4.identity();
+        model_transform_bar = model_transform_bar.times(Mat4.translation(0, 0.4, 0));
+        model_transform_bar = model_transform_bar.times(Mat4.rotation(1.54, 0, 1, 0));
+        model_transform_bar = model_transform_bar.times(Mat4.scale(0.1, 0.1, 5));
+        this.shapes.stick.draw(context, program_state, model_transform_bar, this.materials.metal);
+    }
+}
+
 export class Main extends Scene {
     constructor() {
         // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
@@ -25,13 +76,14 @@ export class Main extends Scene {
                 {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
             test2: new Material(new Gouraud_Shader(),
                 {ambient: .4, diffusivity: .6, color: hex_color("#992828")}),
-            ring: new Material(new Ring_Shader()),
-            // TODO:  Fill in as many additional material objects as needed in this key/value table.
-            //        (Requirement 4)
-            planet_1: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
+            ring: new Material(new Ring_Shader())
         }
 
-        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.handlebars = new Handlebars();
+        this.trainStop = false;
+        this.acceleration = 0.0;
+        this.reverse = false;
     }
 
     make_control_panel() {
@@ -44,7 +96,9 @@ export class Main extends Scene {
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
         this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
         this.new_line();
-        this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
+        this.key_triggered_button("Train stop", ["m"], () => {
+            this.trainStop = !this.trainStop;
+        });
     }
 
     display(context, program_state) {
@@ -65,10 +119,24 @@ export class Main extends Scene {
 
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-        const yellow = hex_color("#fac91a");
-        let model_transform = Mat4.identity();
+        // 0 to 120 in 10 seconds is 2.94 m/s^2
+        if(this.trainStop && this.acceleration < 5.87 && !this.reverse) {
+            this.acceleration += 0.07;
+        } else if (this.reverse && this.acceleration > 0) {
+            this.acceleration -= 0.07;
+        } else if (this.acceleration > 5.87) {
+            this.reverse = true;
+        } else if (this.reverse && this.acceleration <= 0) {
+            this.trainStop = false;
+            this.acceleration = 0;
+            this.reverse = false;
+        }
+        else {
+            this.acceleration = 0;
+        }
+        
+        this.handlebars.create_handlebars(t, context, program_state, Math.atan(this.acceleration/9.8), this.trainStop);
 
-        this.shapes.torus.draw(context, program_state, model_transform.times(Mat4.scale(4, 4, 0.1)), this.materials.test.override({color: yellow}));
     }
 }
 
