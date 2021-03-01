@@ -1,4 +1,5 @@
 import {defs, tiny} from '../examples/common.js';
+import CustomObject from './CustomObject.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -6,8 +7,10 @@ const {
 
 const {Cube} = defs;
 
-export default class Seat {
-    constructor(model_transform=Mat4.identity()) {
+// Seat: class that renders train seats
+export default class Seat extends CustomObject {
+    constructor() {
+        super();
         this.shapes = {
             seat_block: new Cube(),
             seat_base: new Cube(),
@@ -20,7 +23,7 @@ export default class Seat {
     }
 
     /* Custom object functions */
-    make_seat(context, program_state, seat_width=1, model_transform=Mat4.identity()) {
+    render(context, program_state, seat_width=1, model_transform=Mat4.identity()) {
         const seat_thickness = .2;
         const base_depth = 1;
         const back_rest_height = 1;

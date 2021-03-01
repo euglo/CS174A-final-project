@@ -4,12 +4,14 @@ const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
 } = tiny;
 
-class CustomObject {
+// CustomObject: base class, should not be used on its own
+export default class CustomObject {
     constructor(model_transform=Mat4.identity()) {
         this.shapes = {};
+        this.materials = {};
     }
 
-    draw() {
+    render(context, program_state) {
 
     }
 }

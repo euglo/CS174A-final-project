@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import Seat from './objects/Seat.js';
+import { Seat, WaterTile } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -22,6 +22,7 @@ export class Main extends Scene {
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
         this.seat = new Seat();
+        this.water_tile = new WaterTile();
     }
 
     make_control_panel() {
@@ -58,6 +59,7 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
     
         // Displaying custom objects
-        this.seat.make_seat(context, program_state, 5);
+        this.seat.render(context, program_state, 5);
+        this.water_tile.render(context, program_state, 5, 5);
     }
 }
