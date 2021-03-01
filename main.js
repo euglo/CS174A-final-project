@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { Handlebars } from './objects/index.js';
+import { Handlebars, VerticalBar } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -31,6 +31,7 @@ export class Main extends Scene {
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 0, 0), vec3(0, 1, 0));
         this.handlebars = new Handlebars();
+        this.verticalBar = new VerticalBar();
         this.acceleration = 0.0;
     }
 
@@ -69,6 +70,7 @@ export class Main extends Scene {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         
         this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove);
+        this.verticalBar.render(context, program_state);
 
     }
 }
