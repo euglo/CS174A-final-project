@@ -1,4 +1,4 @@
 import Seat from './Seat.js';
-import WaterTile from './WaterTile.js';
+import { WaterTile, WaterFrameBuffers } from './WaterTile.js';
 
-export { Seat, WaterTile };
+export { Seat, WaterTile, WaterFrameBuffers };
