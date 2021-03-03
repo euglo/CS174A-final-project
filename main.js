@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { Seat, WaterTile, Handlebars, VerticalBar } from './objects/index.js';
+import { Seat, WaterTile, Handlebars, VerticalBar, Pillar } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -25,7 +25,13 @@ export class Main extends Scene {
         this.water_tile = new WaterTile();
         this.handlebars = new Handlebars();
         this.vertical_bar = new VerticalBar();
-        this.acceleration = 0.0;
+        this.pillar = new Pillar();
+
+        this.acceleration = 0;
+        this.current_velocity = 0;
+        this.time_counter = 0;
+        this.train_move = false;
+        this.train_stop = false;
     }
 
     make_control_panel() {
@@ -38,8 +44,13 @@ export class Main extends Scene {
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
         this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
         this.new_line();
-        this.key_triggered_button("Train start/stop", ["m"], () => {
-            this.trainMove = !this.trainMove;
+        this.key_triggered_button("Train start", ["n"], () => {
+            this.train_move = true;
+            this.train_stop = false;
+        });
+        this.key_triggered_button("Train stop", ["m"], () => {
+            this.train_stop = true;
+            this.train_move = false;
         });
     }
 
@@ -62,11 +73,50 @@ export class Main extends Scene {
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
+
+        if(this.train_move) {
+            if(this.acceleration < 11.87 && !this.reverse) {
+                this.acceleration += 0.02;
+            } else if (this.reverse && this.acceleration > 0) {
+                this.acceleration -= 0.02;
+            } else if (this.acceleration > 11.87) {
+                this.reverse = true;
+            } else if (this.reverse && this.acceleration <= 0) {
+                this.train_move = false;
+                this.reverse = false;
+                this.acceleration = 0;
+            }
+        }
+
+        if(this.train_stop) {
+            if(this.acceleration >= -11.87 && !this.reverse) {
+                this.acceleration -= 0.02;
+            } else if (this.reverse && this.acceleration <= 0) {
+                this.acceleration += 0.02;
+            } else if (this.acceleration <= -11.87) {
+                this.reverse = true;
+            }
+            else if (this.current_velocity <= 0 || this.acceleration >= 0) {
+                this.train_stop = false;
+                this.acceleration = 0;
+                this.current_velocity = 0;
+            }
+        }
+
+
+        this.current_velocity += dt * this.acceleration;
+        if(this.train_stop && this.current_velocity <= 0) {
+            this.current_velocity = 0;
+            this.acceleration = 0;
+            this.train_stop = false;
+        }
     
         // Displaying custom objects
+        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.train_move || this.train_stop,  Mat4.translation(0,5,0));
+        //this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
         //this.seat.render(context, program_state, 5);
         //this.water_tile.render(context, program_state, 5, 5);
-        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0,3.2,0));
-        this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
+        model_transform =  Mat4.translation(-15 + this.current_velocity * (t % 6),-2,-25);
+        this.pillar.render(context, program_state, model_transform);
     }
 }
