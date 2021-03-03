@@ -19,7 +19,7 @@ export default class VerticalBar {
     }
 
     render(context, program_state, barLength = 5, model_transform=Mat4.identity()) {
-        const barWidth = 0.1; 
+        const barWidth = 0.15; 
 
         model_transform = model_transform.times(Mat4.rotation(3.14/2, 1, 0, 0)); //rotate bar to be vertical
         model_transform = model_transform.times(Mat4.scale(barWidth, barWidth, barLength));

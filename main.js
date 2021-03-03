@@ -64,9 +64,9 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
     
         // Displaying custom objects
-        this.seat.render(context, program_state, 5);
-        this.water_tile.render(context, program_state, 5, 5);
-        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove);
-        this.vertical_bar.render(context, program_state);
+        //this.seat.render(context, program_state, 5);
+        //this.water_tile.render(context, program_state, 5, 5);
+        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0,3.2,0));
+        this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
     }
 }
