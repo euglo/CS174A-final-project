@@ -1,47 +1,67 @@
 import {defs, tiny} from './examples/common.js';
-import {Axes_Viewer, Axes_Viewer_Test_Scene} from "./examples/axes-viewer.js"
-import {Collision_Demo, Inertia_Demo} from "./examples/collisions-demo.js"
-import {Many_Lights_Demo} from "./examples/many-lights-demo.js"
-import {Obj_File_Demo} from "./examples/obj-file-demo.js"
-import {Scene_To_Texture_Demo} from "./examples/scene-to-texture-demo.js"
-import {Surfaces_Demo} from "./examples/surfaces-demo.js"
-import {Text_Demo} from "./examples/text-demo.js"
-import {Transforms_Sandbox} from "./examples/transforms-sandbox.js"
-import {Main} from "./main.js";
+import { Seat, WaterTile, Wall } from './objects/index.js';
 
-// Pull these names into this module's scope for convenience:
 const {
-    Vector, Vector3, vec, vec3, vec4, color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene,
-    Canvas_Widget, Code_Widget, Text_Widget
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
 } = tiny;
 
-// Now we have loaded everything in the files tiny-graphics.js, tiny-graphics-widgets.js, and common.js.
-// This yielded "tiny", an object wrapping the stuff in the first two files, and "defs" for wrapping all the rest.
+const {Cube} = defs;
 
-// ******************** Extra step only for when executing on a local machine:
-//                      Load any more files in your directory and copy them into "defs."
-//                      (On the web, a server should instead just pack all these as well
-//                      as common.js into one file for you, such as "dependencies.js")
+export class Main extends Scene {
+    constructor() {
+        // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
+        super();
 
-const Minimal_Webgl_Demo = defs.Minimal_Webgl_Demo;
+        // At the beginning of our program, load one of each of these shape definitions onto the GPU.
+        this.shapes = {
+        };
 
-Object.assign(defs,
-    {Axes_Viewer, Axes_Viewer_Test_Scene},
-    {Inertia_Demo, Collision_Demo},
-    {Many_Lights_Demo},
-    {Obj_File_Demo},
-    {Scene_To_Texture_Demo},
-    {Surfaces_Demo},
-    {Text_Demo},
-    {Transforms_Sandbox},
-    {Main}
-);
+        // *** Materials
+        this.materials = {
+        }
 
-// ******************** End extra step
+        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.seat = new Seat();
+        this.water_tile = new WaterTile();
+        this.wall = new Wall();
+    }
 
-// (Can define Main_Scene's class here)
+    make_control_panel() {
+        // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
+        this.key_triggered_button("View solar system", ["Control", "0"], () => this.attached = () => 'original');
+        this.new_line();
+        this.key_triggered_button("Attach to planet 1", ["Control", "1"], () => this.attached = () => this.planet_1);
+        this.key_triggered_button("Attach to planet 2", ["Control", "2"], () => this.attached = () => this.planet_2);
+        this.new_line();
+        this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
+        this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
+        this.new_line();
+        this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
+    }
 
-const Main_Scene = Main;
-const Additional_Scenes = [];
+    display(context, program_state) {
+        // display():  Called once per frame of animation.
+        // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
+        if (!context.scratchpad.controls) {
+            this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
+            // Define the global camera and projection matrices, which are stored in program_state.
+            program_state.set_camera(this.initial_camera_location);
+        }
 
-export {Main_Scene, Additional_Scenes, Canvas_Widget, Code_Widget, Text_Widget, defs}
+        program_state.projection_transform = Mat4.perspective(
+            Math.PI / 4, context.width / context.height, .1, 1000);
+
+        // TODO: Lighting (Requirement 2)
+        const light_position = vec4(0, 5, 5, 1);
+        program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
+
+        // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
+        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
+        let model_transform = Mat4.identity();
+    
+        // Displaying custom objects
+        this.seat.render(context, program_state, 5);
+        this.water_tile.render(context, program_state, 5, 5);
+        this.wall.render(context, program_state, 2.35, 5);
+    }
+}
