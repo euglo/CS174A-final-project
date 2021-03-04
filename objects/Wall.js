@@ -13,7 +13,8 @@ export default class Wall extends CustomObject {
         super();
         this.shapes = {
             wall_bottom: new Cube(),
-            wall_middle: new Cube(),
+            wall_left: new Cube(),
+            wall_right: new Cube(),
             wall_top: new Cube,
             window: new Cube(),
             train_map: new Cube(),
@@ -28,42 +29,45 @@ export default class Wall extends CustomObject {
     }
 
     /* Custom object functions */
-    render(context, program_state, window_height=2.35, window_width=5, model_transform=Mat4.identity()) {
-        const wall_bottom_height=1.75;
-        const wall_middle_height=2.3;
-        const wall_top_height=1.5
-        const wall_width=20;
-
+    render(context, program_state, wall_width=20, window_width=5, window_height=3, z_axis=-1.5, model_transform=Mat4.identity()) {
+        
         const map_width=2;
         const map_height=1;
-        const disp_width=2.8;
+        const disp_width=2.5;
         const disp_height=1;
         const poster_width=1.5;
-        const poster_height=1;
+        const poster_height=1; 
 
-        const wall_bottom_transform = model_transform.times(Mat4.scale(wall_width, wall_bottom_height, 0.1)).times(Mat4.translation(0,0.95,-15));
-        const wall_middle_transform = model_transform.times(Mat4.scale(wall_width, wall_middle_height, 0.1)).times(Mat4.translation(0, 2.48, -15));
-        const wall_top_transform = model_transform.times(Mat4.scale(wall_width, wall_top_height, 0.1)).times(Mat4.translation(0, 6.3,-15));
-        const window_transform = model_transform.times(Mat4.scale(window_width, window_height, 0.1)).times(Mat4.translation(0,2.3,-14));
+        const window_position = window_height + 3;
+        const wall_bottom_height = (window_position-window_height)/2;
+        const wall_top_height = window_position+window_height+wall_bottom_height;
+        const wall_side_width = (wall_width-window_width)/2;
+        const wall_side_trans = wall_width - (wall_width-window_width)/2
 
-        const map_transform = model_transform.times(Mat4.scale(map_width, map_height, 0.1)).times(Mat4.translation(-1.5, 9.3, -14));
-        const disp_transform = model_transform.times(Mat4.scale(disp_width, disp_height, 0.1)).times(Mat4.translation(0.8, 9.3, -14));
-        const poster_1_transform = model_transform.times(Mat4.scale(poster_width, poster_height, 0.1)).times(Mat4.translation(-4.5, 6,-14));
-        const poster_2_transform = model_transform.times(Mat4.scale(poster_width, poster_height, 0.1)).times(Mat4.translation(4.5, 6, -14));
+        const wall_bottom_transform = model_transform.times(Mat4.translation(0,wall_bottom_height,z_axis)).times(Mat4.scale(wall_width, wall_bottom_height, 0));
+        const wall_top_transform = model_transform.times(Mat4.translation(0,wall_top_height,z_axis)).times(Mat4.scale(wall_width, wall_bottom_height, 0));
+        const wall_left_transform = model_transform.times(Mat4.translation(-wall_side_trans,window_position,z_axis)).times(Mat4.scale(wall_side_width,window_height,0));
+        const wall_right_transform = model_transform.times(Mat4.translation(wall_side_trans,window_position,z_axis)).times(Mat4.scale(wall_side_width,window_height,0));
+    
+        const window_transform = model_transform.times(Mat4.translation(0,window_position,z_axis)).times(Mat4.scale(window_width, window_height, 0));
 
-        const light_grey = hex_color("#878787");
-        const dark_grey = hex_color("#767676");
-        const darker_grey = hex_color("#333333");
-        const black = hex_color("#000000");
+        const map_transform = model_transform.times(Mat4.translation(-3, window_position+window_height+map_height+.5, z_axis+.1)).times(Mat4.scale(map_width, map_height, 0));
+        const disp_transform = model_transform.times(Mat4.translation(2.5, window_position+window_height+disp_height+.5, z_axis+.1)).times(Mat4.scale(disp_width, disp_height, 0));
+        const poster_1_transform = model_transform.times(Mat4.translation(-(window_width+poster_width+.5), window_position,z_axis+.1)).times(Mat4.scale(poster_width, poster_height, 0));
+        const poster_2_transform = model_transform.times(Mat4.translation((window_width+poster_width+.5), window_position,z_axis+.1)).times(Mat4.scale(poster_width, poster_height, 0));
+
+        const light_grey = hex_color("#bebebe");
+        const window_color = color(0.5, 0.5, 0.5, 0.1);
         const white = hex_color("#ffffff");
 
-        this.shapes.wall_bottom.draw(context, program_state, wall_bottom_transform, this.materials.test.override({color: dark_grey}));
-        this.shapes.wall_middle.draw(context, program_state, wall_middle_transform, this.materials.test.override({color: light_grey}));
-        this.shapes.wall_top.draw(context, program_state, wall_top_transform, this.materials.test.override({color: dark_grey}));
-        this.shapes.window.draw(context, program_state, window_transform, this.materials.test.override({color: black}));
+        this.shapes.wall_bottom.draw(context, program_state, wall_bottom_transform, this.materials.test.override({color: light_grey}));
+        this.shapes.wall_left.draw(context, program_state, wall_left_transform, this.materials.test.override({color: light_grey}));
+        this.shapes.wall_right.draw(context, program_state, wall_right_transform, this.materials.test.override({color:light_grey}));
+        this.shapes.wall_top.draw(context, program_state, wall_top_transform, this.materials.test.override({color: light_grey}));
+        this.shapes.window.draw(context, program_state, window_transform, this.materials.test.override({color: window_color}));
 
         this.shapes.train_map.draw(context, program_state, map_transform, this.materials.test.override({color: white}));
-        this.shapes.disp.draw(context, program_state, disp_transform, this.materials.test.override({color: darker_grey}));
+        this.shapes.disp.draw(context, program_state, disp_transform, this.materials.test.override({color: white}));
         this.shapes.poster.draw(context, program_state, poster_1_transform, this.materials.test.override({color: white}));
         this.shapes.poster.draw(context, program_state, poster_2_transform, this.materials.test.override({color: white}));
     }
