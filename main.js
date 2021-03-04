@@ -62,6 +62,6 @@ export class Main extends Scene {
         // Displaying custom objects
         this.seat.render(context, program_state, 5);
         this.water_tile.render(context, program_state, 5, 5);
-        this.wall.render(context, program_state, 2.35, 5);
+        this.wall.render(context, program_state, 20, 5, 3, -1.5);
     }
 }
