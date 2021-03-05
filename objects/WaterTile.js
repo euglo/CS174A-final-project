@@ -9,33 +9,30 @@ const { Cube, Textured_Phong } = defs;
 
 // WaterTile: class that renders ocean water
 class WaterTile extends CustomObject {
-    constructor() {
+    constructor(length, width, height) {
         super();
         this.shapes = {
             tile: new Cube(),
         };
 
-        const bump = new defs.Fake_Bump_Map(1);
         this.materials = {
-            test: new Material(new Textured_Phong(), {ambient: 1, texture: this.texture}),
+            test: new Material(new Water_Shader()),
         }
 
-        this.skipped_first_time = false;
+        this.length = length;
+        this.width = width;
+        this.height = height;
+    }
+
+    getHeight() {
+        return this.height;
     }
 
     render(context, program_state, length, width, model_transform=Mat4.identity()) {
-        // // Don't call copy to GPU until the event loop has had a chance
-        // // to act on our SRC setting once:
-        if (this.skipped_first_frame)
-            // Update the texture with the current scene:
-            // console.log(this.texture);
-            // this.texture.copy_onto_graphics_card(context, false);
-        this.skipped_first_frame = true;
-
         // Start over on a new drawing, never displaying the prior one:
         context.context.clear(context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT);
 
-        const tile_transform = model_transform.times(Mat4.scale(length, 0., width))
+        const tile_transform = model_transform.times(Mat4.scale(this.length, this.height, this.width))
         this.shapes.tile.draw(context, program_state, tile_transform, this.materials.test);
     }
 
@@ -164,6 +161,8 @@ class Water_Shader extends Shader {
         // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
         return `
         precision mediump float;
+        uniform mat4 model_transform;
+        uniform mat4 projection_camera_model_transform;
         `;
     }
 
@@ -172,10 +171,13 @@ class Water_Shader extends Shader {
         // TODO:  Complete the main function of the vertex shader (Extra Credit Part II).
         return this.shared_glsl_code() + `
         attribute vec3 position;
-        uniform mat4 projection_camera_model_transform;
+        varying float v_distance;
         
         void main(){
             gl_Position = projection_camera_model_transform * vec4( position, 1.0 );
+            vec4 worldPosition = model_transform * vec4( position, 1.0 );
+            vec4 v_plane = vec4( 0.0, -1.0, 0.0, 15.0 );
+            v_distance = dot( worldPosition, v_plane );
         }`;
     }
 
@@ -183,9 +185,15 @@ class Water_Shader extends Shader {
         // ********* FRAGMENT SHADER *********
         // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
         return this.shared_glsl_code() + `
+        varying float v_distance;
+
         void main(){
-            // Compute color of point according to distance from center:
-            gl_FragColor = vec4( 0., 0., 1., 1. );
+            if (v_distance > 15.0) {
+                discard;
+            } else {
+                // Compute color of point
+                gl_FragColor = vec4( 0., 0., 1., 1. );
+            }
         }`;
     }
 }

@@ -11,7 +11,13 @@ export default class CustomObject {
         this.materials = {};
     }
 
-    render(context, program_state) {
+    clipPlane(plane=vec4(0, 0, 0, 0)) {
+        Object.keys(this.materials).map((key, index) => {
+            this.materials[key] = this.materials[key].override({clip_plane: plane});
+        });
+    }
 
+    render(context, program_state) {
+            
     }
 }

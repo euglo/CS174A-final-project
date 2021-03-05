@@ -591,6 +591,7 @@ const Phong_Shader = defs.Phong_Shader =
                 uniform float light_attenuation_factors[N_LIGHTS];
                 uniform vec4 shape_color;
                 uniform vec3 squared_scale, camera_center;
+                uniform vec4 clip_plane;
         
                 // Specifier "varying" means a variable's final value will be passed from the vertex shader
                 // on to the next phase (fragment shader), then interpolated per-fragment, weighted by the
@@ -633,6 +634,7 @@ const Phong_Shader = defs.Phong_Shader =
             return this.shared_glsl_code() + `
                 attribute vec3 position, normal;                            
                 // Position is expressed in object coordinates.
+                varying float v_distance;
                 
                 uniform mat4 model_transform;
                 uniform mat4 projection_camera_model_transform;
@@ -642,7 +644,9 @@ const Phong_Shader = defs.Phong_Shader =
                     gl_Position = projection_camera_model_transform * vec4( position, 1.0 );
                     // The final normal vector in screen space.
                     N = normalize( mat3( model_transform ) * normal / squared_scale);
-                    vertex_worldspace = ( model_transform * vec4( position, 1.0 ) ).xyz;
+                    vec4 worldPosition = model_transform * vec4( position, 1.0 );
+                    vertex_worldspace = worldPosition.xyz;
+                    v_distance = dot( worldPosition, clip_plane ) / (sqrt(clip_plane.x * clip_plane.x + clip_plane.y * clip_plane.y + clip_plane.z * clip_plane.z));
                   } `;
         }
 
@@ -651,7 +655,11 @@ const Phong_Shader = defs.Phong_Shader =
             // A fragment is a pixel that's overlapped by the current triangle.
             // Fragments affect the final image or get discarded due to depth.
             return this.shared_glsl_code() + `
-                void main(){                                                           
+                varying float v_distance;
+
+                void main(){                      
+                    if (v_distance > abs( clip_plane.w )) discard;                                     
+
                     // Compute an initial (ambient) color:
                     gl_FragColor = vec4( shape_color.xyz * ambient, shape_color.w );
                     // Compute the final color with contributions from lights:
@@ -667,6 +675,7 @@ const Phong_Shader = defs.Phong_Shader =
             gl.uniform1f(gpu.diffusivity, material.diffusivity);
             gl.uniform1f(gpu.specularity, material.specularity);
             gl.uniform1f(gpu.smoothness, material.smoothness);
+            gl.uniform4fv(gpu.clip_plane, material.clip_plane || vec4(0, 0, 0, 0));
         }
 
         send_gpu_state(gl, gpu, gpu_state, model_transform) {
@@ -753,11 +762,12 @@ const Textured_Phong = defs.Textured_Phong =
             return this.shared_glsl_code() + `
                 varying vec2 f_tex_coord;
                 uniform sampler2D texture;
+                uniform vec4 clip_plane;
         
                 void main(){
                     // Sample the texture image in the correct place:
                     vec4 tex_color = texture2D( texture, f_tex_coord );
-                    if( tex_color.w < .01 ) discard;
+                    if( tex_color.w < .01) discard;
                                                                              // Compute an initial (ambient) color:
                     gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
                                                                              // Compute the final color with contributions from lights:
