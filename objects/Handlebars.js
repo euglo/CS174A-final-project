@@ -15,7 +15,7 @@ export default class Handlebars {
         };
         this.materials = {
             metal: new Material(new defs.Phong_Shader(),
-                {ambient: .2, diffusivity: .8, specularity: 0, color: hex_color("#707070")})
+                {ambient: .2, diffusivity: .8, specularity: 0, color: hex_color("#DFBD69")})
         }
         this.simulateStop = false;
     }
