@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { Seat, WaterTile } from './objects/index.js';
+import { Ground, Seat, WaterTile } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -21,6 +21,7 @@ export class Main extends Scene {
         }
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.ground = new Ground();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
     }
@@ -60,6 +61,7 @@ export class Main extends Scene {
     
         // Displaying custom objects
         this.seat.render(context, program_state, 5);
-        this.water_tile.render(context, program_state, 5, 5);
+        //this.water_tile.render(context, program_state, 5, 5);
+        this.ground.render(context, program_state, 20, 40, -5);
     }
 }

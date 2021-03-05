@@ -1,4 +1,5 @@
+import Ground from './Ground.js';
 import Seat from './Seat.js';
 import WaterTile from './WaterTile.js';
 
-export { Seat, WaterTile };
+export { Ground, Seat, WaterTile};
