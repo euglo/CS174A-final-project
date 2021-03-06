@@ -24,10 +24,11 @@ export default class CarEnd extends CustomObject {
             door_red: new Material(new defs.Phong_Shader(),
                 {ambient: .4, diffusivity: .6, color: red}),
             window: new Material(new defs.Phong_Shader(),
-                {ambient: 0.5, diffusivity: .6, specularity: 1, color: color(0.5, 0.5, 0.5, .1)}),
+                {ambient: .5, diffusivity: .6, specularity: 1, color: color(0.5, 0.5, 0.5, .1)}),
             wall: new Material(new defs.Phong_Shader(),
-                {ambient: 0.4, diffusivity: .6, color: white})
-
+                {ambient: .4, diffusivity: .6, color: white}),
+            poster: new Material(new defs.Phong_Shader(),
+                {ambient: .4, diffusivity: .6, color: red})
         }
     }
 
@@ -134,9 +135,9 @@ export default class CarEnd extends CustomObject {
       this.shapes.cube.draw(context, program_state, wall_right_strip, this.materials.wall);
 
       // left poster
-      this.shapes.cube.draw(context, program_state, left_poster_transform, this.materials.door_red);
+      this.shapes.cube.draw(context, program_state, left_poster_transform, this.materials.poster);
       // right poster
-      this.shapes.cube.draw(context, program_state, right_poster_transform, this.materials.door_red);
+      this.shapes.cube.draw(context, program_state, right_poster_transform, this.materials.poster);
 
     }
 }
