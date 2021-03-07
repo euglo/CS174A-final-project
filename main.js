@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { Seat, WaterTile, Handlebars, VerticalBar } from './objects/index.js';
+import { Doors, Seat, WaterTile, Handlebars, VerticalBar } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -26,6 +26,7 @@ export class Main extends Scene {
         this.handlebars = new Handlebars();
         this.vertical_bar = new VerticalBar();
         this.acceleration = 0.0;
+        this.doors = new Doors();
     }
 
     make_control_panel() {
@@ -64,9 +65,10 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
     
         // Displaying custom objects
-        //this.seat.render(context, program_state, 5);
         //this.water_tile.render(context, program_state, 5, 5);
         this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0,3.2,0));
         this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
+        this.seat.render(context, program_state, 5, Mat4.translation(0, 0, 4));
+        this.doors.render(context, program_state, 10, 0.25, Mat4.identity()); // feel free to experiment with the parameters
     }
 }
