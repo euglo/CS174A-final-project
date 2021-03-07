@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { Doors, Seat, WaterTile } from './objects/index.js';
+import { Doors, Seat, WaterTile, Handlebars, VerticalBar } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -23,6 +23,9 @@ export class Main extends Scene {
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
         this.seat = new Seat();
         this.water_tile = new WaterTile();
+        this.handlebars = new Handlebars();
+        this.vertical_bar = new VerticalBar();
+        this.acceleration = 0.0;
         this.doors = new Doors();
     }
 
@@ -36,7 +39,9 @@ export class Main extends Scene {
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
         this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
         this.new_line();
-        this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
+        this.key_triggered_button("Train start/stop", ["m"], () => {
+            this.trainMove = !this.trainMove;
+        });
     }
 
     display(context, program_state) {
@@ -60,8 +65,10 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
     
         // Displaying custom objects
+        //this.water_tile.render(context, program_state, 5, 5);
+        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0,3.2,0));
+        this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
         this.seat.render(context, program_state, 5, Mat4.translation(0, 0, 4));
-        // this.water_tile.render(context, program_state, 5, 5);
         this.doors.render(context, program_state, 10, 0.25, Mat4.identity()); // feel free to experiment with the parameters
     }
 }
