@@ -66,15 +66,23 @@ export class Main extends Scene {
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
-    
+            
+        const depth = 7;
+        const length = 25;
         // Displaying custom objects
         this.ground.render(context, program_state, 20, 40, -5);
-        this.ceiling.render(context, program_state, 4, 20, 50);
-        this.wall.render(context, program_state, 20, 5, 3, -1.5);
+        this.ceiling.render(context, program_state, 5, depth * 2, length * 2, 11.75);
+        this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.translation(0, -.5, 1.5 - depth));
         //this.water_tile.render(context, program_state, 5, 5);
-        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0,3.2,0));
-        this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
-        this.seat.render(context, program_state, 5, Mat4.translation(0, 0, 4));
-        this.doors.render(context, program_state, 10, 0.25, Mat4.identity()); // feel free to experiment with the parameters
+        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0, 9, 2 - depth));
+        this.vertical_bar.render(context, program_state, 12, Mat4.translation(34.5 - length, 5.5, 2 - depth));
+        this.vertical_bar.render(context, program_state, 12, Mat4.translation(-(34.5 - length), 5.5, 2 - depth));
+        this.vertical_bar.render(context, program_state, 12, Mat4.translation(41.5 - length, 5.5, 2 - depth));
+        this.vertical_bar.render(context, program_state, 12, Mat4.translation(-(41.5 - length), 5.5, 2 - depth));
+        this.seat.render(context, program_state, 8.5, Mat4.translation(0, 0, 1.5 - depth));
+        this.seat.render(context, program_state, 3, Mat4.translation(length - 4.6, 0, 1.5 - depth));
+        this.seat.render(context, program_state, 3, Mat4.translation(-(length - 4.6), 0, 1.5 - depth));
+        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(38 - length, 2, -depth)); // feel free to experiment with the parameters
+        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(-(38 - length), 2, -depth));
     }
 }
