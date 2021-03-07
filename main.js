@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { Doors, Seat, WaterTile, Handlebars, VerticalBar } from './objects/index.js';
+import { Doors, Seat, WaterTile, Handlebars, VerticalBar, Wall } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -23,6 +23,7 @@ export class Main extends Scene {
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
         this.seat = new Seat();
         this.water_tile = new WaterTile();
+        this.wall = new Wall();
         this.handlebars = new Handlebars();
         this.vertical_bar = new VerticalBar();
         this.acceleration = 0.0;
@@ -65,6 +66,7 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
     
         // Displaying custom objects
+        this.wall.render(context, program_state, 20, 5, 3, -1.5);
         //this.water_tile.render(context, program_state, 5, 5);
         this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0,3.2,0));
         this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
