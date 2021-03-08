@@ -76,7 +76,7 @@ export class Main extends Scene {
         // opposite side
         this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.translation(0, -.5, 1.5 - depth));
         this.car_end.render(context, program_state, depth * 2, 12, 10.75, Mat4.translation(-length, -.5, 0).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
-        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, 3.5, length * 2, Mat4.translation(0, 9, 2 - depth));
+        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, length * 2, Mat4.translation(0, 9, 2 - depth));
         this.vertical_bar.render(context, program_state, 12, Mat4.translation(34.5 - length, 5.5, 2 - depth));
         this.vertical_bar.render(context, program_state, 12, Mat4.translation(-(34.5 - length), 5.5, 2 - depth));
         this.vertical_bar.render(context, program_state, 12, Mat4.translation(41.5 - length, 5.5, 2 - depth));
@@ -90,7 +90,7 @@ export class Main extends Scene {
         // other side
         this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.scale(1, 1, -1).times(Mat4.translation(0, -.5, 1.5 - depth)));
         this.car_end.render(context, program_state, depth * 2, 12, 10.75, Mat4.translation(length, -.5, 0).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
-        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, 3.5, length * 2, Mat4.scale(1, 1, -1).times(Mat4.translation(0, 9, 2 - depth)));
+        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, length * 2, Mat4.scale(1, 1, -1).times(Mat4.translation(0, 9, 2 - depth)));
         this.vertical_bar.render(context, program_state, 12, Mat4.scale(1, 1, -1).times(Mat4.translation(34.5 - length, 5.5, 2 - depth)));
         this.vertical_bar.render(context, program_state, 12, Mat4.scale(1, 1, -1).times(Mat4.translation(-(34.5 - length), 5.5, 2 - depth)));
         this.vertical_bar.render(context, program_state, 12, Mat4.scale(1, 1, -1).times(Mat4.translation(41.5 - length, 5.5, 2 - depth)));

@@ -22,7 +22,7 @@ export default class Handlebars extends CustomObject {
         this.simulateStop = false;
     }
 
-    render(context, program_state, t, a, simulateStop, num_handlebars = 15, spacing = 3.5, bar_length = 20, model_transform=Mat4.identity()) {
+    render(context, program_state, t, a, simulateStop, num_handlebars = 15, bar_length = 20, model_transform=Mat4.identity()) {
         let i = 0;
 
         const stick_width = 0.1; 
@@ -30,6 +30,7 @@ export default class Handlebars extends CustomObject {
         const loop_width = 0.4;
         const loop_thick = 0.15;
         const bar_width = 0.15;
+        const spacing = bar_length / (num_handlebars + 1);
         
         let handle_position = -((bar_length/2) -spacing);
 
