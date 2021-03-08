@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { CarEnd, Ceiling, Doors, Ground, Handlebars, Seat, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { CarEnd, Ceiling, Doors, Ground, Handlebars, Pillar, Seat, VerticalBar, Wall, WaterTile } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -31,6 +31,7 @@ export class Main extends Scene {
         this.acceleration = 0.0;
         this.doors = new Doors();
         this.car_end = new CarEnd();
+        this.pillar = new Pillar();
     }
 
     make_control_panel() {
@@ -100,5 +101,6 @@ export class Main extends Scene {
         this.seat.render(context, program_state, 3, Mat4.scale(1, 1, -1).times(Mat4.translation(-(length - 4.6), 0, 1.5 - depth)));
         this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(38 - length, 2, -depth))); // feel free to experiment with the parameters
         this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(-(38 - length), 2, -depth)));
+        this.seat.render(context, program_state, 5);
     }
 }

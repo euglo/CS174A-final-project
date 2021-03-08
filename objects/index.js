@@ -7,5 +7,6 @@ import WaterTile from './WaterTile.js';
 import CarEnd from './CarEnd.js';
 import Ceiling from './Ceiling.js';
 import Wall from "./Wall.js";
+import Pillar from './Pillar.js';
 
-export { CarEnd, Ceiling, Doors, Ground, Seat, WaterTile, Handlebars, VerticalBar, Wall };
+export { CarEnd, Ceiling, Doors, Ground, Seat, WaterTile, Handlebars, VerticalBar, Wall, Pillar };
