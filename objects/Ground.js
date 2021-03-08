@@ -31,7 +31,7 @@ export default class Ground extends CustomObject {
 
     /* Custom object functions */
     render(context, program_state, ground_width=10, ground_length=40, ground_height=20, model_transform=Mat4.identity(), ) {
-      const ground_thickness = 0.25;
+      const ground_thickness = 0.15;
 
       const ground_transform = model_transform
                                   .times(Mat4.translation(0, ground_height, 0))

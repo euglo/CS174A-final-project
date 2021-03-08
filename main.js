@@ -70,7 +70,7 @@ export class Main extends Scene {
         const depth = 7;
         const length = 25;
         // Displaying custom objects
-        this.ground.render(context, program_state, 20, 40, -5);
+        this.ground.render(context, program_state, depth * 2, length * 2, -0.5);
         this.ceiling.render(context, program_state, 5, depth * 2, length * 2, 11.75);
         this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.translation(0, -.5, 1.5 - depth));
         //this.water_tile.render(context, program_state, 5, 5);
