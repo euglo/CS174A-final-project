@@ -15,17 +15,15 @@ export default class SkyBox extends CustomObject {
         cube: new Cube()
     };
 
-    this.sky_scale = 100;
     this.materials = {
-        sky: new Material(new SkyBox_Shader(),
-            {box_scale: this.sky_scale}),
+        sky: new Material(new SkyBox_Shader()),
         // TODO: change custom shader so we can override ambience
     }
 	}
 
   /* Custom object functions */
-  render(context, program_state, model_transform=Mat4.identity()) {
-    const sky_box_transform = model_transform.times(Mat4.scale(this.sky_scale, this.sky_scale, this.sky_scale))
+  render(context, program_state, sky_scale=100, model_transform=Mat4.identity()) {
+    const sky_box_transform = model_transform.times(Mat4.scale(sky_scale, sky_scale, sky_scale))
     this.shapes.cube.draw(context, program_state, sky_box_transform, this.materials.sky)
   }
 }
