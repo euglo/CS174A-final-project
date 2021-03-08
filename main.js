@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { Ground, Seat, WaterTile } from './objects/index.js';
+import { Ceiling, Doors, Ground, Handlebars, Seat, VerticalBar, Wall, WaterTile } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -24,6 +24,12 @@ export class Main extends Scene {
         this.ground = new Ground();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
+        this.ceiling = new Ceiling();
+        this.wall = new Wall();
+        this.handlebars = new Handlebars();
+        this.vertical_bar = new VerticalBar();
+        this.acceleration = 0.0;
+        this.doors = new Doors();
     }
 
     make_control_panel() {
@@ -36,7 +42,9 @@ export class Main extends Scene {
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
         this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
         this.new_line();
-        this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
+        this.key_triggered_button("Train start/stop", ["m"], () => {
+            this.trainMove = !this.trainMove;
+        });
     }
 
     display(context, program_state) {
@@ -60,8 +68,13 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
     
         // Displaying custom objects
-        this.seat.render(context, program_state, 5);
-        //this.water_tile.render(context, program_state, 5, 5);
         this.ground.render(context, program_state, 20, 40, -5);
+        this.ceiling.render(context, program_state, 4, 20, 50);
+        this.wall.render(context, program_state, 20, 5, 3, -1.5);
+        //this.water_tile.render(context, program_state, 5, 5);
+        this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove,  Mat4.translation(0,3.2,0));
+        this.vertical_bar.render(context, program_state, 8, Mat4.translation(8,0,0));
+        this.seat.render(context, program_state, 5, Mat4.translation(0, 0, 4));
+        this.doors.render(context, program_state, 10, 0.25, Mat4.identity()); // feel free to experiment with the parameters
     }
 }
