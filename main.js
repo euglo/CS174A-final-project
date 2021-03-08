@@ -60,9 +60,6 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
     
         // Displaying custom objects
-        this.seat.render(context, program_state, 5);
-        //this.water_tile.render(context, program_state, 5, 5);
-        this.pillar.render(context, program_state, Mat4.translation(5,-2,-25));
-        this.pillar.render(context, program_state, Mat4.translation(-5,-2,-25));
+        this.pillar.render(context, program_state, 0.8, 6, Mat4.translation(-5,-2,-25));
     }
 }
