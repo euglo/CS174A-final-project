@@ -34,7 +34,7 @@ export default class CarEnd extends CustomObject {
 
     /* Custom object functions */
     render(context, program_state, wall_width=60, wall_height=50, door_height=40, model_transform=Mat4.identity()) {
-      const door_width = 20; // always 20, no matter size of wall or door
+      const door_width = 5; // always 20, no matter size of wall or door
       const wall_thickness = 0.25;
 
       // ensure that door height does not exceed wall height
