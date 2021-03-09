@@ -30,13 +30,19 @@ export default class Ceiling extends CustomObject {
 
       const ceiling_transform = model_transform
                                   .times(Mat4.translation(0, ceiling_height, 0))
-                                  .times(Mat4.scale(ceiling_length / 2, ceiling_thickness, ceiling_width / 2)); // length & width / 2 bc 2x2x2 cube
+                                  .times(Mat4.scale(ceiling_length / 2, ceiling_thickness, ceiling_width / 2)) // length & width / 2 bc 2x2x2 cube
+                                  .times(Mat4.translation(0, 1, 0)) // bottom of ceiling is now at ceiling_height
       
       const light_transforms = [];
       for (let i = 1; i <= num_lights; i++) {
         light_transforms.push(
           model_transform
-            .times(Mat4.translation(0, ceiling_height, 0)) // move cylinder to ceiling
+            // get lights to ceiling and back into standard cartesian coordinates
+            .times(Mat4.translation(0, ceiling_height, 0))
+            .times(Mat4.scale(1, ceiling_thickness, 1))
+            .times(Mat4.translation(0, 1, 0)) // up to this point: same as ceiling transform
+            .times(Mat4.scale(1, 1 / ceiling_thickness, 1)) // unscale y-axis to return to standard coordinates
+            // space out lights
             .times(Mat4.translation(-ceiling_length / 2, 0, 0)) // start drawing from edge of ceiling
             .times(Mat4.translation( i * ceiling_length /(num_lights + 1), 0, 0)) // space lights evenly across ceiling
             .times(Mat4.scale(2, 0.5, 2)) // size the cylinder
