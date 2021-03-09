@@ -182,7 +182,7 @@ class Water_Shader extends Shader {
             }
             return f;
         }
-        vec3 clouds(float x, float y) {
+        vec3 water(float x, float y) {
             float L = turbulence(vec3(x, y, animation_time * .3));
             return vec3(noise(vec3(.5, 0.3, L) * .7));
         }
@@ -192,9 +192,6 @@ class Water_Shader extends Shader {
             float frequency = 7.0;
             float n = 0.4;
   
-            // n -= 1.0    * abs( noise( coord * frequency ) );
-            // n -= 1.5    * abs( noise( coord * frequency * 4.0 ) );
-            // n -= 1.25   * abs( noise( coord * frequency * 4.0 ) );
             n += 0.25 * abs( noise( coord * 4.0 ) );
             n += 0.5 * abs( noise( coord * 8.0 ) );
             n += 0.25 * abs( noise( coord * 16.0 ) );
@@ -221,18 +218,18 @@ class Water_Shader extends Shader {
             vertex_worldspace = ( model_transform * vec4( position, 1.0 ) ).xyz;
 
             vec4 proj_position;
-            proj_position = projection_camera_model_transform * vec4(position, 1.0);
+            proj_position = projection_camera_model_transform * vec4( position, 1.0 );
             vPosition = proj_position.xyz;
             
             // Calculate surface displacement
-            vUv = vec2((pow(position.x,1.)), pow(position.z,1.))/2.;
+            vUv = vec2( pow( position.x , 1. ), pow( position.z, 1. ) ) / 2.;
             vec2 uvMax = ( 2.0 * asin( sin( 2.0 * PI * vUv ) ) ) / PI;
 
-            float n = surface3(vec3(uvMax * uvScale, animation_time * speed));
+            float n = surface3( vec3( uvMax * uvScale, animation_time * speed ) );
 
             vec3 s = vec3( clamp( n, 0.0, 1.0 ) ) * baseColor;
-            float mult = sqrt(s.x*s.x+s.y*s.y+s.z*s.z);
-            vec4 newPosition = vec4(position.x, position.y * mult * 2. + position.y, position.z, 1.0);
+            float mult = sqrt( s.x * s.x + s.y * s.y + s.z * s.z );
+            vec4 newPosition = vec4( position.x, position.y * mult * 2. + position.y, position.z, 1.0 );
             gl_Position = projection_camera_model_transform * newPosition;
         }`;
     }
@@ -246,8 +243,8 @@ class Water_Shader extends Shader {
         void main(){
             // Compute color of point, adding light effects
             vec3 color;
-            vec3 cloudEffect = clouds(vPosition.x, vPosition.y);
-            color = cloudEffect + baseColor;
+            vec3 waterEffect = water( vPosition.x, vPosition.y );
+            color = waterEffect + baseColor;
             gl_FragColor = vec4( color * ambient, 1. );
             gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
         }`;
