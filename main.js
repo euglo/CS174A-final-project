@@ -73,6 +73,7 @@ export class Main extends Scene {
         // Displaying custom objects
         this.ground.render(context, program_state, depth * 2, length * 2, -0.5);
         this.ceiling.render(context, program_state, 5, depth * 2, length * 2, 11.75);
+        this.water_tile.render(context, program_state, 20, 20, 1, Mat4.translation(0, -0.5, -12));
         // opposite side
         this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.translation(0, -.5, 1.5 - depth));
         this.car_end.render(context, program_state, depth * 2, 12, 10.75, Mat4.translation(-length, -.5, 0).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
