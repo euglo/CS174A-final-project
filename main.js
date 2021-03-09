@@ -84,8 +84,8 @@ export class Main extends Scene {
         this.seat.render(context, program_state, 8.5, Mat4.translation(0, 0, 1.5 - depth));
         this.seat.render(context, program_state, 3, Mat4.translation(length - 4.6, 0, 1.5 - depth));
         this.seat.render(context, program_state, 3, Mat4.translation(-(length - 4.6), 0, 1.5 - depth));
-        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(38 - length, 2, -depth)); // feel free to experiment with the parameters
-        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(-(38 - length), 2, -depth));
+        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(38 - length, 0, -depth)); // feel free to experiment with the parameters
+        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(-(38 - length), 0, -depth));
 
         // other side
         this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.scale(1, 1, -1).times(Mat4.translation(0, -.5, 1.5 - depth)));
@@ -98,7 +98,7 @@ export class Main extends Scene {
         this.seat.render(context, program_state, 8.5, Mat4.scale(1, 1, -1).times(Mat4.translation(0, 0, 1.5 - depth)));
         this.seat.render(context, program_state, 3, Mat4.scale(1, 1, -1).times(Mat4.translation(length - 4.6, 0, 1.5 - depth)));
         this.seat.render(context, program_state, 3, Mat4.scale(1, 1, -1).times(Mat4.translation(-(length - 4.6), 0, 1.5 - depth)));
-        this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(38 - length, 2, -depth))); // feel free to experiment with the parameters
-        this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(-(38 - length), 2, -depth)));
+        this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(38 - length, 0, -depth))); // feel free to experiment with the parameters
+        this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(-(38 - length), 0, -depth)));
     }
 }

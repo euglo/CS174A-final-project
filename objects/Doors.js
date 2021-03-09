@@ -104,30 +104,31 @@ class Doors extends CustomObject {
     const door_width = door_height / 4;
 
     // individual transformations to build door-parts from cube
-    const door_base = Mat4.scale(door_width / 2, door_height / 4, 1);
+    const door_base = Mat4.scale(door_width / 2, door_height / 4, 1)
+                                    .times(Mat4.translation(0, 1, 0))
 
-    const right_window_frame = Mat4.translation(door_width / 2, door_height / 2, 0)
+    const right_window_frame = Mat4.translation(door_width / 2, door_height, 0)
                                     .times(Mat4.scale(door_width / 10, door_height / 4, 1))
-                                    .times(Mat4.translation(-1, 0, 0));
+                                    .times(Mat4.translation(-1, -1, 0));
 
-    const left_window_frame = Mat4.translation(- (door_width / 2), door_height / 2, 0)
+    const left_window_frame = Mat4.translation(- (door_width / 2), door_height, 0)
                                     .times(Mat4.scale(door_width / 10, door_height / 4, 1))
-                                    .times(Mat4.translation(1, 0, 0));
+                                    .times(Mat4.translation(1, -1, 0));
 
-    const top_window_frame = Mat4.translation(0, 3 / 4 * door_height, 0)
+    const top_window_frame = Mat4.translation(0, door_height, 0)
                                     .times(Mat4.scale(door_width / 2, door_width / 10, 1))
                                     .times(Mat4.translation(0, -1, 0));
 
-    const window = Mat4.translation(0, door_height / 2 , 0)
-                                    .times(Mat4.scale(1, door_width / 10, 1)) // get y in units of top bar
+    const window = Mat4.translation(0, door_height , 0)
+                                    // .times(Mat4.scale(1, door_width / 10, 1)) // get y in units of top bar
+                                    .times(Mat4.scale(3 * door_width / 10, door_height / 4, 0.5)) // scale to size of window
                                     .times(Mat4.translation(0, -1, 0)) // translate so do don't have top edge overlap
-                                    .times(Mat4.scale(3 * door_width / 10, 10, 0.5)) // scale to size of window
 
-    const handle = Mat4.translation(door_width / 2, door_height / 4,  0)
+    const handle = Mat4.translation(door_width / 2, door_height / 2,  0)
                                     .times(Mat4.scale( 0.5 * door_width / 10, 1.5 * door_width / 10, 2))
                                     .times(Mat4.translation(-2, -1.5, 0));
 
-    const door_seal = Mat4.translation(door_width / 2, door_height / 4, 0)
+    const door_seal = Mat4.translation(door_width / 2, door_height / 2, 0)
                                     .times(Mat4.scale(0.25 * door_width / 10, door_height / 2, 1))
                                     .times(Mat4.translation(1, 0, 0));
 
