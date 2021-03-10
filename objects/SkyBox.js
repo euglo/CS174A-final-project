@@ -29,6 +29,7 @@ export default class SkyBox extends CustomObject {
 }
 
 class SkyBox_Shader extends Phong_Shader {
+
   update_GPU(context, gpu_addresses, graphics_state, model_transform, material) {
     // update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
     const [P, C, M] = [graphics_state.projection_transform, graphics_state.camera_inverse, model_transform],
@@ -36,6 +37,9 @@ class SkyBox_Shader extends Phong_Shader {
     context.uniformMatrix4fv(gpu_addresses.model_transform, false, Matrix.flatten_2D_to_1D(model_transform.transposed()));
     context.uniformMatrix4fv(gpu_addresses.projection_camera_model_transform, false,
         Matrix.flatten_2D_to_1D(PCM.transposed()));
+    
+    context.uniform1f ( gpu_addresses.animation_time, graphics_state.animation_time / 1000 );
+
 }
 
 shared_glsl_code() {
@@ -44,6 +48,7 @@ shared_glsl_code() {
     precision mediump float;
     varying vec4 point_position;
     varying vec4 center;
+    uniform float animation_time;
     `;
 }
 
@@ -63,25 +68,30 @@ vertex_glsl_code() {
 }
 
 
-		fragment_glsl_code() {
-				// ********* FRAGMENT SHADER *********
-				// TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
-				return this.shared_glsl_code() + `
-                varying vec2 f_tex_coord;
-				void main(){
-                    
-                    // vec3 texcoord = normalize(f_tex_coord);
-                    // vec3 up = vec3(0., 1., 0.);
-                    // float d = dot(texcoord, up);
-                    // float s = sign(d);
+    fragment_glsl_code() {
+        // ********* FRAGMENT SHADER *********
+        // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
+        return this.shared_glsl_code() + `
 
-                    // gl_FragColor = vec4(mix(vec4(1.0, 1.0, 0.8), s < 0.0 ? vec3(0.3, 0.3, 1, 0) : vec3(1, 0.3, 0.3, 0), pow(abs(d), 1.)), 1);
+        // equation = 54. * sin(animation_time) + 102.;
+        const float upper_hex = 200.;
+        const float lower_hex = 20.;
 
-                    float sigmoid = 1. / (1. + pow(2.71828, -0.015 * (point_position.y + pow(2., -1. * pow(point_position.x + point_position.y, 2.)))));
-                    float blue_color = (sigmoid * 148. + 108.) / 256.;
-                    float red_color = (sigmoid * 218. + 48.) / 256.;
-                    float green_color = (sigmoid * 100. + 156.) / 256.;
-				    gl_FragColor = vec4( red_color, blue_color, green_color, 1.);
-				}`;
-		}
+        void main(){
+
+            // range [48, 156]
+            float midpoint = (upper_hex + lower_hex) / 2.;
+            float amplitude = (upper_hex - lower_hex ) / 2.;
+            // amplitude = 400.;
+            float red = amplitude * sin(0.5 * animation_time) + midpoint;
+            float blue = amplitude * sin(0.1 * animation_time) + midpoint;
+            float green = amplitude * sin(0.2 * animation_time); // lower range so we don't super green skies
+
+            float sigmoid = 1. / (1. + pow(2.71828, -0.015 * (point_position.y + pow(2., -1. * pow(point_position.x + point_position.y, 2.)))));
+            float blue_color = (sigmoid * blue + 256. - blue) / 256.;
+            float red_color = (sigmoid * red + 256. - red) / 256.;
+            float green_color = (sigmoid * green + 256. - green) / 256.;
+            gl_FragColor = vec4( red_color, blue_color, green_color, 1.);
+        }`;
+    }
 }
