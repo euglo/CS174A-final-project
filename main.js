@@ -20,7 +20,7 @@ export class Main extends Scene {
         this.materials = {
         }
 
-        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
         this.ground = new Ground();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
@@ -31,6 +31,11 @@ export class Main extends Scene {
         this.acceleration = 0.0;
         this.doors = new Doors();
         this.car_end = new CarEnd();
+
+        this.horizontal_look = 0;
+        this.vertical_look = 5;
+        this.dt = 0;
+        this.detached = false;
     }
 
     make_control_panel() {
@@ -46,13 +51,54 @@ export class Main extends Scene {
         this.key_triggered_button("Train start/stop", ["m"], () => {
             this.trainMove = !this.trainMove;
         });
+        this.new_line();
+        if (!this.detached) {
+            this.key_triggered_button("Look left", ["a"], () => {
+                if (this.horizontal_look > -9) {
+                  this.horizontal_look -= 40 * this.dt;
+                }
+            })
+            this.key_triggered_button("Look right", ["d"], () => {
+                if (this.horizontal_look < 9) {
+                    this.horizontal_look += 40 * this.dt;
+                }
+            });
+            this.key_triggered_button("Look up", ["w"], () => {
+                if (this.vertical_look < 7) {
+                    this.vertical_look += 40 * this.dt;
+                }
+            })
+            this.key_triggered_button("Look down", ["s"], () => {
+                if (this.vertical_look > -3) {
+                    this.vertical_look -= 40 * this.dt;
+                }
+            });
+            this.new_line();
+        }
+        this.key_triggered_button("Detach", ["y"], () => {
+            this.detached = true;
+        });
+        this.key_triggered_button("Reattach", ["t"], () => {
+            this.detached = false;
+            this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
+            this.horizontal_look = 0;
+            this.vertical_look = 5;
+      });
     }
 
     display(context, program_state) {
+        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
+        this.dt = dt;
         // display():  Called once per frame of animation.
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
+        if (!this.detached) {
+            this.initial_camera_location =  Mat4.look_at(vec3(0, 5, 7), vec3(this.horizontal_look, this.vertical_look, 0), vec3(0, 1, 0));
+        }
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
+            // Define the global camera and projection matrices, which are stored in program_state.
+            program_state.set_camera(this.initial_camera_location);
+        } else {
             // Define the global camera and projection matrices, which are stored in program_state.
             program_state.set_camera(this.initial_camera_location);
         }
@@ -65,7 +111,7 @@ export class Main extends Scene {
         program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
 
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
-        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
+
         let model_transform = Mat4.identity();
             
         const depth = 7;
