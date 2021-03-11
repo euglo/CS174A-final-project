@@ -12,7 +12,9 @@ export default class SkyBox extends CustomObject {
 	constructor() {
     super();
     this.shapes = {
-        cube: new Cube()
+        cube: new Cube(),
+        sphere: new defs.Subdivision_Sphere(4),
+
     };
 
     this.materials = {
@@ -24,7 +26,7 @@ export default class SkyBox extends CustomObject {
   /* Custom object functions */
   render(context, program_state, sky_scale=100, model_transform=Mat4.identity()) {
     const sky_box_transform = model_transform.times(Mat4.scale(sky_scale, sky_scale, sky_scale))
-    this.shapes.cube.draw(context, program_state, sky_box_transform, this.materials.sky)
+    this.shapes.sphere.draw(context, program_state, sky_box_transform, this.materials.sky)
   }
 }
 
@@ -73,19 +75,20 @@ vertex_glsl_code() {
         // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
         return this.shared_glsl_code() + `
 
-        // equation = 54. * sin(animation_time) + 102.;
-        const float upper_hex = 200.;
-        const float lower_hex = 20.;
+        const float blue_upper = 256.;
+        const float blue_lower = 100.;
+        const float red_upper = 200.;
+        const float red_lower = 50.;
 
         void main(){
+            float blue_midpoint = (blue_upper + blue_lower) / 2.;
+            float blue_amplitude = (blue_upper - blue_lower ) / 2.;
+            float red_midpoint = (red_upper + red_lower) / 2.;
+            float red_amplitude = (red_upper - red_lower ) / 2.;
 
-            // range [48, 156]
-            float midpoint = (upper_hex + lower_hex) / 2.;
-            float amplitude = (upper_hex - lower_hex ) / 2.;
-            // amplitude = 400.;
-            float red = amplitude * sin(0.5 * animation_time) + midpoint;
-            float blue = amplitude * sin(0.1 * animation_time) + midpoint;
-            float green = amplitude * sin(0.2 * animation_time); // lower range so we don't super green skies
+            float red = red_amplitude * sin(2. * 0.17 * animation_time ) + red_midpoint;
+            float blue = blue_amplitude * sin(2. * 0.02 * animation_time) + blue_midpoint;
+            float green = 40. * sin(2. * 0.1 * animation_time); // lower range so we don't super green skies
 
             float sigmoid = 1. / (1. + pow(2.71828, -0.015 * (point_position.y + pow(2., -1. * pow(point_position.x + point_position.y, 2.)))));
             float blue_color = (sigmoid * blue + 256. - blue) / 256.;
