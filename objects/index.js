@@ -1,3 +1,5 @@
+import BrickWall from './BrickWall.js';
+import Floor from './Floor.js';
 import Ground from './Ground.js';
 import Doors from './Doors.js';
 import Seat from './Seat.js';
@@ -10,4 +12,4 @@ import CarEnd from './CarEnd.js';
 import Ceiling from './Ceiling.js';
 import Wall from "./Wall.js";
 
-export { CarEnd, Ceiling, Doors, Ground, Pillar, Seat, SkyBox, WaterTile, Handlebars, VerticalBar, Wall };
+export { BrickWall, CarEnd, Ceiling, Doors, Floor, Ground, Pillar, Seat, SkyBox, WaterTile, Handlebars, VerticalBar, Wall };

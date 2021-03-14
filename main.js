@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { CarEnd, Ceiling, Doors, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { BrickWall, CarEnd, Ceiling, Doors, Floor, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 import { Movement } from './Movement.js';
 import Palette from './constants/Palette.js';
 
@@ -23,7 +23,10 @@ export class Main extends Scene {
         }
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
+      
+        this.floor = new Floor();        
         this.ground = new Ground();
+        this.brickWall = new BrickWall();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
         this.pillar = new Pillar();
@@ -52,14 +55,6 @@ export class Main extends Scene {
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-        this.key_triggered_button("View solar system", ["Control", "0"], () => this.attached = () => 'original');
-        this.new_line();
-        this.key_triggered_button("Attach to planet 1", ["Control", "1"], () => this.attached = () => this.planet_1);
-        this.key_triggered_button("Attach to planet 2", ["Control", "2"], () => this.attached = () => this.planet_2);
-        this.new_line();
-        this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
-        this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
-        this.new_line();
         this.key_triggered_button("Train start", ["n"], () => {
             if (!this.train_start && !this.train_stop) {
                 this.train_start = true;
@@ -134,7 +129,7 @@ export class Main extends Scene {
             const train_car_translation = Mat4.translation(i * (length * 2 + space_btwn_cars), 0, 0);
 
             // Displaying custom objects
-            this.ground.render(context, program_state, depth * 2, length * 2, 0, train_car_translation);
+            this.floor.render(context, program_state, depth * 2, length * 2, 0, train_car_translation);
             this.ceiling.render(context, program_state, this.palette, 5, depth * 2, length * 2, height, train_car_translation);
 
             // opposite side
@@ -203,6 +198,8 @@ export class Main extends Scene {
         this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 1, -22));
         
         // Displaying custom objects
+        this.ground.render(context, program_state, 25, 80, 1, Mat4.translation(0, -5, 0));
+        this.brickWall.render(context, program_state, 1, 80, 25, Mat4.translation(0, 0, -15));
         this.render_train_cars(context, program_state, angle, 2, 3);
         this.sky_box.render(context, program_state);
     }
