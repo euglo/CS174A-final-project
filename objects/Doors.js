@@ -16,23 +16,23 @@ class Doors extends CustomObject {
 
     this.materials = {
       door: new Material(new defs.Phong_Shader(),
-          {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
-      red_door: new Material(new defs.Phong_Shader(),
-      {ambient: .4, diffusivity: .6, color: hex_color("#ff0000")}),
+          {ambient: .4, diffusivity: .6}),
+      door_frame: new Material(new defs.Phong_Shader(),
+      {ambient: .4, diffusivity: .6}),
       window: new Material(new defs.Phong_Shader(),
       {ambient: .5, diffusivity: .6, specularity: 1, color: color(0.5, 0.5, 0.5, 0.1)})
     }
   }
 
-  render_left_door(context, program_state, door_height, door_thickness, model_transform, transformations) {
-    this.render_one_door(context, program_state, door_height, door_thickness, model_transform, transformations, true)
+  render_left_door(context, program_state, palette, door_height, door_thickness, model_transform, transformations) {
+    this.render_one_door(context, program_state, palette, door_height, door_thickness, model_transform, transformations, true)
   }
 
-  render_right_door(context, program_state, door_height, door_thickness, model_transform, transformations) {
-    this.render_one_door(context, program_state, door_height, door_thickness, model_transform, transformations, false)
+  render_right_door(context, program_state, palette, door_height, door_thickness, model_transform, transformations) {
+    this.render_one_door(context, program_state, palette, door_height, door_thickness, model_transform, transformations, false)
   }
 
-  render_one_door(context, program_state, door_height, door_thickness, model_transform, transformations, isLeftDoor=true) {
+  render_one_door(context, program_state, palette, door_height, door_thickness, model_transform, transformations, isLeftDoor=true) {
     const door_width_without_seal = door_height / 4;
     const door_width = 1.101 * door_width_without_seal; // the extra 0.001 makes a tiny line visible between the doors
 
@@ -81,22 +81,22 @@ class Doors extends CustomObject {
               }); 
 
     // door base                                
-    this.shapes.cube.draw(context, program_state, door_base_transform, this.materials.door);
+    this.shapes.cube.draw(context, program_state, door_base_transform, this.materials.door.override({color: palette.door}));
     // right window frame
-    this.shapes.cube.draw(context, program_state, right_window_frame_transform, this.materials.door);
+    this.shapes.cube.draw(context, program_state, right_window_frame_transform, this.materials.door.override({color: palette.door}));
     // left window frame
-    this.shapes.cube.draw(context, program_state, left_window_frame_transform, this.materials.door);
+    this.shapes.cube.draw(context, program_state, left_window_frame_transform, this.materials.door.override({color: palette.door}));
     // top window frame
-    this.shapes.cube.draw(context, program_state, top_window_frame_transform, this.materials.door);
+    this.shapes.cube.draw(context, program_state, top_window_frame_transform, this.materials.door.override({color: palette.door}));
     // window
     this.shapes.cube.draw(context, program_state, window_transform, this.materials.window);
     // handle
-    this.shapes.cube.draw(context, program_state, handle_transform, this.materials.red_door);
+    this.shapes.cube.draw(context, program_state, handle_transform, this.materials.door_frame.override({color: palette.door_frame}));
     // door seal
-    this.shapes.cube.draw(context, program_state, door_seal_transform, this.materials.red_door);  
+    this.shapes.cube.draw(context, program_state, door_seal_transform, this.materials.door_frame.override({color: palette.door_frame}));  
   }
 
-  render(context, program_state, door_height=40, door_thickness=0.25, model_transform=Mat4.identity()) {
+  render(context, program_state, palette, door_height=40, door_thickness=0.25, model_transform=Mat4.identity()) {
     /*
     door_height: vertically and horizontally scales door
     door_thickness: changes thickess of doors
@@ -104,35 +104,36 @@ class Doors extends CustomObject {
     const door_width = door_height / 4;
 
     // individual transformations to build door-parts from cube
-    const door_base = Mat4.scale(door_width / 2, door_height / 4, 1);
+    const door_base = Mat4.scale(door_width / 2, door_height / 4, 1)
+                                    .times(Mat4.translation(0, 1, 0))
 
-    const right_window_frame = Mat4.translation(door_width / 2, door_height / 2, 0)
+    const right_window_frame = Mat4.translation(door_width / 2, door_height, 0)
                                     .times(Mat4.scale(door_width / 10, door_height / 4, 1))
-                                    .times(Mat4.translation(-1, 0, 0));
+                                    .times(Mat4.translation(-1, -1, 0));
 
-    const left_window_frame = Mat4.translation(- (door_width / 2), door_height / 2, 0)
+    const left_window_frame = Mat4.translation(- (door_width / 2), door_height, 0)
                                     .times(Mat4.scale(door_width / 10, door_height / 4, 1))
-                                    .times(Mat4.translation(1, 0, 0));
+                                    .times(Mat4.translation(1, -1, 0));
 
-    const top_window_frame = Mat4.translation(0, 3 / 4 * door_height, 0)
+    const top_window_frame = Mat4.translation(0, door_height, 0)
                                     .times(Mat4.scale(door_width / 2, door_width / 10, 1))
                                     .times(Mat4.translation(0, -1, 0));
 
-    const window = Mat4.translation(0, door_height / 2 , 0)
-                                    .times(Mat4.scale(1, door_width / 10, 1)) // get y in units of top bar
+    const window = Mat4.translation(0, door_height , 0)
+                                    // .times(Mat4.scale(1, door_width / 10, 1)) // get y in units of top bar
+                                    .times(Mat4.scale(3 * door_width / 10, door_height / 4, 0.5)) // scale to size of window
                                     .times(Mat4.translation(0, -1, 0)) // translate so do don't have top edge overlap
-                                    .times(Mat4.scale(3 * door_width / 10, 10, 0.5)) // scale to size of window
 
-    const handle = Mat4.translation(door_width / 2, door_height / 4,  0)
+    const handle = Mat4.translation(door_width / 2, door_height / 2,  0)
                                     .times(Mat4.scale( 0.5 * door_width / 10, 1.5 * door_width / 10, 2))
                                     .times(Mat4.translation(-2, -1.5, 0));
 
-    const door_seal = Mat4.translation(door_width / 2, door_height / 4, 0)
+    const door_seal = Mat4.translation(door_width / 2, door_height / 2, 0)
                                     .times(Mat4.scale(0.25 * door_width / 10, door_height / 2, 1))
                                     .times(Mat4.translation(1, 0, 0));
 
     // draw both doors based off parameters passed in to render() function
-    this.render_left_door(context, program_state, door_height, door_thickness, model_transform, {
+    this.render_left_door(context, program_state, palette, door_height, door_thickness, model_transform, {
                             door_base, 
                             right_window_frame,
                             left_window_frame, 
@@ -141,7 +142,7 @@ class Doors extends CustomObject {
                             handle,
                             door_seal
                           });
-    this.render_right_door(context, program_state, door_height, door_thickness, model_transform, {
+    this.render_right_door(context, program_state, palette, door_height, door_thickness, model_transform, {
                             door_base, 
                             right_window_frame,
                             left_window_frame, 

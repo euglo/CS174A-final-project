@@ -15,7 +15,7 @@ export default class Wall extends CustomObject {
             wall_bottom: new Cube(),
             wall_left: new Cube(),
             wall_right: new Cube(),
-            wall_top: new Cube,
+            wall_top: new Cube(),
             window: new Cube(),
             train_map: new Cube(),
             disp: new Cube(),
@@ -23,13 +23,13 @@ export default class Wall extends CustomObject {
         };
 
         this.materials = {
-            test: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
+            wall: new Material(new defs.Phong_Shader(),
+                {ambient: .4, diffusivity: .6}),
         }
     }
 
     /* Custom object functions */
-    render(context, program_state, wall_width=20, window_width=5, window_height=3, z_axis=-1.5, model_transform=Mat4.identity()) {
+    render(context, program_state, palette, wall_width=20, window_width=5, window_height=3, z_axis=-1.5, model_transform=Mat4.identity()) {
         
         const map_width=2;
         const map_height=1;
@@ -56,20 +56,18 @@ export default class Wall extends CustomObject {
         const poster_1_transform = model_transform.times(Mat4.translation(-(window_width+poster_width+.5), window_position,z_axis+.1)).times(Mat4.scale(poster_width, poster_height, 0));
         const poster_2_transform = model_transform.times(Mat4.translation((window_width+poster_width+.5), window_position,z_axis+.1)).times(Mat4.scale(poster_width, poster_height, 0));
 
-        const light_grey = hex_color("#bebebe");
         const window_color = color(0.5, 0.5, 0.5, 0.1);
-        const white = hex_color("#ffffff");
 
-        this.shapes.wall_bottom.draw(context, program_state, wall_bottom_transform, this.materials.test.override({color: light_grey}));
-        this.shapes.wall_left.draw(context, program_state, wall_left_transform, this.materials.test.override({color: light_grey}));
-        this.shapes.wall_right.draw(context, program_state, wall_right_transform, this.materials.test.override({color:light_grey}));
-        this.shapes.wall_top.draw(context, program_state, wall_top_transform, this.materials.test.override({color: light_grey}));
-        this.shapes.window.draw(context, program_state, window_transform, this.materials.test.override({color: window_color}));
+        this.shapes.wall_bottom.draw(context, program_state, wall_bottom_transform, this.materials.wall.override({color: palette.wall}));
+        this.shapes.wall_left.draw(context, program_state, wall_left_transform, this.materials.wall.override({color: palette.wall}));
+        this.shapes.wall_right.draw(context, program_state, wall_right_transform, this.materials.wall.override({color:palette.wall}));
+        this.shapes.wall_top.draw(context, program_state, wall_top_transform, this.materials.wall.override({color: palette.wall}));
+        //this.shapes.window.draw(context, program_state, window_transform, this.materials.test.override({color: window_color}));
 
-        this.shapes.train_map.draw(context, program_state, map_transform, this.materials.test.override({color: white}));
-        this.shapes.disp.draw(context, program_state, disp_transform, this.materials.test.override({color: white}));
-        this.shapes.poster.draw(context, program_state, poster_1_transform, this.materials.test.override({color: white}));
-        this.shapes.poster.draw(context, program_state, poster_2_transform, this.materials.test.override({color: white}));
+        this.shapes.train_map.draw(context, program_state, map_transform, this.materials.wall.override({color: palette.poster}));
+        this.shapes.disp.draw(context, program_state, disp_transform, this.materials.wall.override({color: palette.poster}));
+        this.shapes.poster.draw(context, program_state, poster_1_transform, this.materials.wall.override({color: palette.poster}));
+        this.shapes.poster.draw(context, program_state, poster_2_transform, this.materials.wall.override({color: palette.poster}));
     }
 
 }

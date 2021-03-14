@@ -15,26 +15,23 @@ export default class CarEnd extends CustomObject {
           cube: new Cube()
         };
 
-        const white = hex_color('#ffffff');
-        const red = hex_color('#ff0000')
-
         this.materials = {
             door: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: white}),
-            door_red: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: red}),
+                {ambient: .4, diffusivity: .6}),
+            door_frame: new Material(new defs.Phong_Shader(),
+                {ambient: .4, diffusivity: .6}),
             window: new Material(new defs.Phong_Shader(),
                 {ambient: .5, diffusivity: .6, specularity: 1, color: color(0.5, 0.5, 0.5, .1)}),
             wall: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: white}),
+                {ambient: .4, diffusivity: .6}),
             poster: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: red})
+                {ambient: .4, diffusivity: .6})
         }
     }
 
     /* Custom object functions */
-    render(context, program_state, wall_width=60, wall_height=50, door_height=40, model_transform=Mat4.identity()) {
-      const door_width = 5; // always 20, no matter size of wall or door
+    render(context, program_state, palette, wall_width=60, wall_height=50, door_height=40, model_transform=Mat4.identity()) {
+      const door_width = door_height / 2; // always 20, no matter size of wall or door
       const wall_thickness = 0.25;
 
       // ensure that door height does not exceed wall height
@@ -43,25 +40,25 @@ export default class CarEnd extends CustomObject {
       }
 
       const door_base_transform = model_transform
-                                            .times(Mat4.translation(0, 3, 0))
-                                            .times(Mat4.scale(door_width / 2, 3, wall_thickness));
+                                            .times(Mat4.translation(0, 0.15 * door_width, 0))
+                                            .times(Mat4.scale(door_width / 2, 0.15 * door_width, wall_thickness));
       const door_left_transform = model_transform
                                             .times(Mat4.translation(- door_width / 2, door_height / 2, 0))
-                                            .times(Mat4.scale(2, door_height / 2, wall_thickness))
+                                            .times(Mat4.scale(0.1 * door_width, door_height / 2, wall_thickness))
                                             .times(Mat4.translation(1, 0, 0));
       const door_right_transform = model_transform
                                             .times(Mat4.translation(door_width / 2, door_height / 2, 0))
-                                            .times(Mat4.scale(2, door_height / 2, wall_thickness))
+                                            .times(Mat4.scale(0.1 * door_width, door_height / 2, wall_thickness))
                                             .times(Mat4.translation(-1, 0, 0));
       const door_top_transform = model_transform
                                             .times(Mat4.translation(0, door_height, 0))
-                                            .times(Mat4.scale(door_width / 2, 3, wall_thickness))
+                                            .times(Mat4.scale(door_width / 2, 0.15 * door_width, wall_thickness))
                                             .times(Mat4.translation(0, -1, 0));
       
       // base door_handle off of left door piece
       const door_handle_transform = door_left_transform
                                             .times(Mat4.scale(1 / 2, 1 / (door_height / 2), 1)) // change back to cube
-                                            .times(Mat4.scale(0.5, 2, 2));
+                                            .times(Mat4.scale(0.5, 0.05 * door_height, 2));
       const door_window_transform = model_transform
                                             .times(Mat4.translation(0, door_height / 2, 0))
                                             .times(Mat4.scale(door_width / 2, door_height / 2, 0.5 * wall_thickness));
@@ -101,43 +98,43 @@ export default class CarEnd extends CustomObject {
       const left_poster_transform = wall_left_strip
                                             .times(Mat4.scale(1 / wall_width_scale, 1 / (door_height / 2), 1 / wall_thickness)) // undo wall scaling
                                             .times(Mat4.translation(0, door_height / 4, 0))
-                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 1));
+                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 0.5));
       const right_poster_transform = wall_right_strip
                                             .times(Mat4.scale(1 / wall_width_scale, 1 / (door_height / 2), 1 / wall_thickness)) // undo wall scaling
                                             .times(Mat4.translation(0, door_height / 4, 0))
-                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 1));
+                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 0.5));
 
       // door base
-      this.shapes.cube.draw(context, program_state, door_base_transform, this.materials.door);
+      this.shapes.cube.draw(context, program_state, door_base_transform, this.materials.door.override({color: palette.door}));
       // left door
-      this.shapes.cube.draw(context, program_state, door_left_transform, this.materials.door);
+      this.shapes.cube.draw(context, program_state, door_left_transform, this.materials.door.override({color: palette.door}));
       // right door
-      this.shapes.cube.draw(context, program_state, door_right_transform, this.materials.door);
+      this.shapes.cube.draw(context, program_state, door_right_transform, this.materials.door.override({color: palette.door}));
       // door top
-      this.shapes.cube.draw(context, program_state, door_top_transform, this.materials.door);
+      this.shapes.cube.draw(context, program_state, door_top_transform, this.materials.door.override({color: palette.door}));
       // door handle
-      this.shapes.cube.draw(context, program_state, door_handle_transform, this.materials.door_red);
+      this.shapes.cube.draw(context, program_state, door_handle_transform, this.materials.door_frame.override({color: palette.door_frame}));
       // door window
-      this.shapes.cube.draw(context, program_state, door_window_transform, this.materials.window);
+      //this.shapes.cube.draw(context, program_state, door_window_transform, this.materials.window);
 
-      // left door frame
-      this.shapes.cube.draw(context, program_state, door_frame_left_transform, this.materials.door_red);
-      // right door frame
-      this.shapes.cube.draw(context, program_state, door_frame_right_transform, this.materials.door_red);
-      // top door frame
-      this.shapes.cube.draw(context, program_state, door_frame_top_transform, this.materials.door_red);
+    //   // left door frame
+    //   this.shapes.cube.draw(context, program_state, door_frame_left_transform, this.materials.door_red);
+    //   // right door frame
+    //   this.shapes.cube.draw(context, program_state, door_frame_right_transform, this.materials.door_red);
+    //   // top door frame
+    //   this.shapes.cube.draw(context, program_state, door_frame_top_transform, this.materials.door_red);
 
       // wall top strip
-      this.shapes.cube.draw(context, program_state, wall_top_strip, this.materials.wall);
+      this.shapes.cube.draw(context, program_state, wall_top_strip, this.materials.wall.override({color: palette.wall}));
       // wall left strip
-      this.shapes.cube.draw(context, program_state, wall_left_strip, this.materials.wall);
+      this.shapes.cube.draw(context, program_state, wall_left_strip, this.materials.wall.override({color: palette.wall}));
       // wall right strip
-      this.shapes.cube.draw(context, program_state, wall_right_strip, this.materials.wall);
+      this.shapes.cube.draw(context, program_state, wall_right_strip, this.materials.wall.override({color: palette.wall}));
 
       // left poster
-      this.shapes.cube.draw(context, program_state, left_poster_transform, this.materials.poster);
+      this.shapes.cube.draw(context, program_state, left_poster_transform, this.materials.poster.override({color: palette.poster}));
       // right poster
-      this.shapes.cube.draw(context, program_state, right_poster_transform, this.materials.poster);
+      this.shapes.cube.draw(context, program_state, right_poster_transform, this.materials.poster.override({color: palette.poster}));
 
     }
 }
