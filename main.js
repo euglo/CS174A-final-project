@@ -21,8 +21,6 @@ export class Main extends Scene {
         // *** Materials
         this.materials = {
         }
-
-        this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
       
         this.floor = new Floor();        
         this.ground = new Ground();
@@ -48,7 +46,7 @@ export class Main extends Scene {
         this.train_stop = false;
 
         this.horizontal_look = 0;
-        this.vertical_look = 5;
+        this.vertical_look = 5.5;
         this.dt = 0;
         this.detached = false;
     }
@@ -79,7 +77,7 @@ export class Main extends Scene {
             }
         });
         this.key_triggered_button("Look up", ["w"], () => {
-            if (this.vertical_look < 7) {
+            if (this.vertical_look < 8) {
                 this.vertical_look += 20 * this.dt;
             }
         })
@@ -97,7 +95,7 @@ export class Main extends Scene {
             this.detached = false;
             this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
             this.horizontal_look = 0;
-            this.vertical_look = 5;
+            this.vertical_look = 5.5;
         });
 
         this.new_line();
@@ -169,7 +167,7 @@ export class Main extends Scene {
         // display():  Called once per frame of animation.
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!this.detached) {
-            this.initial_camera_location =  Mat4.look_at(vec3(0, 5, 7), vec3(this.horizontal_look, this.vertical_look, 0), vec3(0, 1, 0));
+            this.initial_camera_location =  Mat4.look_at(vec3(0, 6, 7), vec3(this.horizontal_look, this.vertical_look, 0), vec3(0, 1, 0));
         }
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
@@ -198,8 +196,8 @@ export class Main extends Scene {
         this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 1, -22));
         
         // Displaying custom objects
-        this.ground.render(context, program_state, 25, 80, 1, Mat4.translation(0, -5, 0));
-        this.brickWall.render(context, program_state, 1, 80, 25, Mat4.translation(0, 0, -15));
+        this.ground.render(context, program_state, 100, 200, 1, Mat4.translation(0, -5, 0));
+        //this.brickWall.render(context, program_state, 1, 80, 25, Mat4.translation(0, 0, -15));
         this.render_train_cars(context, program_state, angle, 2, 3);
         this.sky_box.render(context, program_state);
     }
