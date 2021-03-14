@@ -17,8 +17,8 @@ export default class Ground extends CustomObject {
         
         this.materials = {
             ground: new Material(new Normal_Textured_Phong(), 
-                { ambient: 1, specularity: 0.4,
-                  texture: new Texture('../assets/cartoonStone.jpg'), normal_texture: new Texture('../assets/cartoonStoneNormalMap.png') }),
+                { ambient: 1,
+                  texture: new Texture('../assets/whiteSand.jpg'), normal_texture: new Texture('../assets/whiteSandNormal.png') }),
         }
     }
     
