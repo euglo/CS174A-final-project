@@ -24,8 +24,7 @@ export default class Wall extends CustomObject {
     
     /* Custom object functions */
     render(context, program_state, wall_width=1, wall_length=80, wall_height=25, model_transform=Mat4.identity(), ) {
-        const wall_transform = model_transform.times(Mat4.translation(0, 0, -15)) 
-            .times(Mat4.scale(wall_length / 2, wall_height / 2, wall_width / 2));
+        const wall_transform = model_transform.times(Mat4.scale(wall_length / 2, wall_height / 2, wall_width / 2));
         
         const texture_scale = 15;
 

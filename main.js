@@ -76,8 +76,8 @@ export class Main extends Scene {
         // One time only
         this.floor.render(context, program_state, depth * 2, length * 2, -0.5);
         this.ceiling.render(context, program_state, 5, depth * 2, length * 2, 11.75);
-        this.ground.render(context, program_state);
-        this.brickWall.render(context, program_state);
+        this.ground.render(context, program_state, 25, 80, 1, Mat4.translation(0, -5, 0));
+        this.brickWall.render(context, program_state, 1, 80, 25, Mat4.translation(0, 0, -15));
 
         // opposite side
         this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.translation(0, -.5, 1.5 - depth));

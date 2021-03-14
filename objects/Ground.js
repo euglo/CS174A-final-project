@@ -24,8 +24,7 @@ export default class Ground extends CustomObject {
     
     /* Custom object functions */
     render(context, program_state, ground_width=25, ground_length=80, ground_height=1, model_transform=Mat4.identity(), ) {
-        const ground_transform = model_transform.times(Mat4.translation(0, -5, 0)) 
-            .times(Mat4.scale(ground_length / 2, ground_height / 2, ground_width / 2));
+        const ground_transform = model_transform.times(Mat4.scale(ground_length / 2, ground_height / 2, ground_width / 2));
         
         const texture_scale = 15;
 
