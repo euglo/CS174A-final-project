@@ -196,6 +196,7 @@ export class Main extends Scene {
         this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 1, -22));
         
         // Displaying custom objects
+        this.water_tile.render(context, program_state, 20, 20, 1, Mat4.translation(0, -0.5, -12));
         this.ground.render(context, program_state, 100, 200, 1, Mat4.translation(0, -5, 0));
         //this.brickWall.render(context, program_state, 1, 80, 25, Mat4.translation(0, 0, -15));
         this.render_train_cars(context, program_state, angle, 2, 3);
