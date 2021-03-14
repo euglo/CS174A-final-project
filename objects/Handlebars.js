@@ -17,12 +17,12 @@ export default class Handlebars extends CustomObject {
         };
         this.materials = {
             metal: new Material(new defs.Phong_Shader(),
-                {ambient: .2, diffusivity: .8, specularity: 0, color: hex_color("#DFBD69")})
+                {ambient: .2, diffusivity: .8, specularity: 0})
         }
         this.simulateStop = false;
     }
 
-    render(context, program_state, t, a, simulateStop, num_handlebars = 15, bar_length = 20, model_transform=Mat4.identity()) {
+    render(context, program_state, palette, t, a, simulateStop, num_handlebars = 15, bar_length = 20, model_transform=Mat4.identity()) {
         let i = 0;
 
         const stick_width = 0.1; 
@@ -43,7 +43,7 @@ export default class Handlebars extends CustomObject {
                 handle_model_transform = handle_model_transform.times(Mat4.rotation(0.5/8.0 + 0.5/8.0*Math.sin(2*t), 0, 0, 1));
             handle_model_transform = handle_model_transform.times(Mat4.rotation(Math.PI / 2, 1, 0, 0)); //rotate bar vertical
             handle_model_transform = handle_model_transform.times(Mat4.scale(stick_width, stick_width, stick_length));
-            this.shapes.stick.draw(context, program_state, handle_model_transform, this.materials.metal);
+            this.shapes.stick.draw(context, program_state, handle_model_transform, this.materials.metal.override({color: palette.handle_string}));
 
             handle_model_transform = model_transform;
             handle_model_transform = handle_model_transform.times(Mat4.translation(handle_position, 0, 0));
@@ -56,7 +56,7 @@ export default class Handlebars extends CustomObject {
             handle_model_transform = handle_model_transform.times(Mat4.rotation(0.2, 0, 0, 1));
             handle_model_transform = handle_model_transform.times(Mat4.rotation(1.5, 0, 1, 0));
             handle_model_transform = handle_model_transform.times(Mat4.scale(loop_width, loop_width, loop_thick));
-            this.shapes.loop.draw(context, program_state, handle_model_transform, this.materials.metal);
+            this.shapes.loop.draw(context, program_state, handle_model_transform, this.materials.metal.override({color: palette.handle_grip}));
 
             handle_position += spacing;
         }
@@ -64,7 +64,7 @@ export default class Handlebars extends CustomObject {
         model_transform = model_transform.times(Mat4.translation(0, stick_length/2, 0)); //position bar in scene
         model_transform = model_transform.times(Mat4.scale(bar_length, bar_width, bar_width));
         model_transform = model_transform.times(Mat4.rotation(Math.PI / 2, 0, 1, 0)); //make bar horizontal to camera 
-        this.shapes.stick.draw(context, program_state, model_transform, this.materials.metal);
+        this.shapes.stick.draw(context, program_state, model_transform, this.materials.metal.override({color: palette.bars}));
     }
     
 }

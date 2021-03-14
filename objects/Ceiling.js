@@ -18,14 +18,14 @@ export default class Ceiling extends CustomObject {
 
         this.materials = {
             ceiling: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#d1a366")}),
+                {ambient: .4, diffusivity: .6}),
             lights: new Material(new defs.Phong_Shader(),
                 {ambient: 1, diffusivity: .6, color: color(1, 1, 1, 0.8)}),
         }
     }
 
     /* Custom object functions */
-    render(context, program_state, num_lights=3, ceiling_width=10, ceiling_length=40, ceiling_height=20, model_transform=Mat4.identity(), ) {
+    render(context, program_state, palette, num_lights=3, ceiling_width=10, ceiling_length=40, ceiling_height=20, model_transform=Mat4.identity(), ) {
       const ceiling_thickness = 0.25;
 
       const ceiling_transform = model_transform
@@ -63,7 +63,7 @@ export default class Ceiling extends CustomObject {
       */
 
       // ceiling                           
-      this.shapes.cube.draw(context, program_state, ceiling_transform, this.materials.ceiling);
+      this.shapes.cube.draw(context, program_state, ceiling_transform, this.materials.ceiling.override({color: palette.ceiling}));
       // lights cylinders
       light_transforms.forEach(light_transform => {
         this.shapes.cylinder.draw(context, program_state, light_transform, this.materials.lights);
