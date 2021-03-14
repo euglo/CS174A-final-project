@@ -118,7 +118,7 @@ export default class CarEnd extends CustomObject {
       // door handle
       this.shapes.cube.draw(context, program_state, door_handle_transform, this.materials.door_red);
       // door window
-      this.shapes.cube.draw(context, program_state, door_window_transform, this.materials.window);
+      //this.shapes.cube.draw(context, program_state, door_window_transform, this.materials.window);
 
       // left door frame
       this.shapes.cube.draw(context, program_state, door_frame_left_transform, this.materials.door_red);

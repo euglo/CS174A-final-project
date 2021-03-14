@@ -9,6 +9,5 @@ import SkyBox from './SkyBox.js'
 import CarEnd from './CarEnd.js';
 import Ceiling from './Ceiling.js';
 import Wall from "./Wall.js";
-import Pillar from './Pillar.js';
 
 export { CarEnd, Ceiling, Doors, Ground, Pillar, Seat, SkyBox, WaterTile, Handlebars, VerticalBar, Wall };
