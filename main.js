@@ -1,6 +1,7 @@
 import {defs, tiny} from './examples/common.js';
 import { CarEnd, Ceiling, Doors, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 import { Movement } from './Movement.js';
+import Palette from './constants/Palette.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -34,7 +35,10 @@ export class Main extends Scene {
         this.vertical_bar = new VerticalBar();
         this.doors = new Doors();
         this.car_end = new CarEnd();
-        this.pillar = new Pillar();
+      
+        // palette
+        this.palette_num = 0;
+        this.palette = Palette[this.palette_num];
 
         this.train_movement = new Movement();
         this.train_start = false;
@@ -93,15 +97,22 @@ export class Main extends Scene {
         this.key_triggered_button("Detach", ["y"], () => {
             this.detached = true;
         });
+            
         this.key_triggered_button("Reattach", ["t"], () => {
             this.detached = false;
             this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
             this.horizontal_look = 0;
             this.vertical_look = 5;
-      });
+        });
+
+        this.new_line();
+        this.key_triggered_button("Change train colors", ["c"], () => {
+            this.palette_num = (this.palette_num + 1) % Palette.length; // loop palette colors
+            this.palette = Palette[this.palette_num];
+        });
     }
 
-    render_train_cars(context, program_state, num_cars=3, space_btwn_cars=5) {
+    render_train_cars(context, program_state, angle, num_cars=3, space_btwn_cars=5) {
         const t = program_state.animation_time / 1000;
 
         // train dimensions
@@ -124,38 +135,37 @@ export class Main extends Scene {
 
             // Displaying custom objects
             this.ground.render(context, program_state, depth * 2, length * 2, 0, train_car_translation);
-            this.ceiling.render(context, program_state, 5, depth * 2, length * 2, height, train_car_translation);
+            this.ceiling.render(context, program_state, this.palette, 5, depth * 2, length * 2, height, train_car_translation);
 
             // opposite side
-            this.wall.render(context, program_state, length, 5, 3, -depth, train_car_translation);
-            this.car_end.render(context, program_state, depth * 2, height, 10, train_car_translation.times(Mat4.translation(-length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
-            this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, length * 2, train_car_translation.times(Mat4.translation(0, 9, 2 - depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(-inner_bar_length, height / 2, bar_depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(outer_bar_length, height / 2, bar_depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(-outer_bar_length, height / 2, bar_depth)));
-            this.seat.render(context, program_state, 8.5, train_car_translation.times(Mat4.translation(0, 0, seat_depth)));
-            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.translation(outer_seat_length, 0, seat_depth)));
-            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.translation(-outer_seat_length, 0, seat_depth)));
-            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.translation(door_length, 0, -depth)));
-            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.translation(-door_length, 0, -depth)));
+            this.wall.render(context, program_state, this.palette, length, 5, 3, -depth, train_car_translation);
+            this.car_end.render(context, program_state, this.palette, depth * 2, height, 10, train_car_translation.times(Mat4.translation(-length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
+            this.handlebars.render(context, program_state, this.palette, t, angle, this.train_move, 13, length * 2, train_car_translation.times(Mat4.translation(0, 9, 2 - depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.translation(-inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.translation(outer_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.translation(-outer_bar_length, height / 2, bar_depth)));
+            this.seat.render(context, program_state, this.palette, 8.5, train_car_translation.times(Mat4.translation(0, 0, seat_depth)));
+            this.seat.render(context, program_state, this.palette, 3, train_car_translation.times(Mat4.translation(outer_seat_length, 0, seat_depth)));
+            this.seat.render(context, program_state, this.palette, 3, train_car_translation.times(Mat4.translation(-outer_seat_length, 0, seat_depth)));
+            this.doors.render(context, program_state, this.palette, 10, 0.25, train_car_translation.times(Mat4.translation(door_length, 0, -depth)));
+            this.doors.render(context, program_state, this.palette, 10, 0.25, train_car_translation.times(Mat4.translation(-door_length, 0, -depth)));
 
             // other side
-            this.wall.render(context, program_state, length, 5, 3, depth, train_car_translation);
-            this.car_end.render(context, program_state, depth * 2, height, 10, train_car_translation.times(Mat4.translation(length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
-            this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, length * 2, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(0, 9, 2 - depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-inner_bar_length, height / 2, bar_depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(outer_bar_length, height / 2, bar_depth)));
-            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-outer_bar_length, height / 2, bar_depth)));
-            this.seat.render(context, program_state, 8.5, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(0, 0, seat_depth)));
-            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(outer_seat_length, 0, seat_depth)));
-            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-outer_seat_length, 0, seat_depth)));
-            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(door_length, 0, -depth)));
-            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-door_length, 0, -depth)));
+            this.wall.render(context, program_state, this.palette, length, 5, 3, depth, train_car_translation);
+            this.car_end.render(context, program_state, this.palette, depth * 2, height, 10, train_car_translation.times(Mat4.translation(length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
+            this.handlebars.render(context, program_state, this.palette, t, angle, this.train_move, 13, length * 2, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(0, 9, 2 - depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(outer_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-outer_bar_length, height / 2, bar_depth)));
+            this.seat.render(context, program_state, this.palette, 8.5, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(0, 0, seat_depth)));
+            this.seat.render(context, program_state, this.palette, 3, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(outer_seat_length, 0, seat_depth)));
+            this.seat.render(context, program_state, this.palette, 3, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-outer_seat_length, 0, seat_depth)));
+            this.doors.render(context, program_state, this.palette, 10, 0.25, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(door_length, 0, -depth)));
+            this.doors.render(context, program_state, this.palette, 10, 0.25, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-door_length, 0, -depth)));
 
         }
-        
     }
 
     display(context, program_state) {
@@ -189,12 +199,11 @@ export class Main extends Scene {
             this.train_stop = this.train_movement.train_stop();
         }
         const angle = Math.atan(this.train_movement.get_acceleration()/9.8);
-        const train_move = this.train_start || this.train_stop;
+        this.train_move = this.train_start || this.train_stop;
         this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 0, -22));
     
         // Displaying custom objects
-        this.render_train_cars(context, program_state, 2, 3);
-        this.pillar.render(context, program_state, 0.8, 6, Mat4.translation(-5,-2,-25));
+        this.render_train_cars(context, program_state, angle, 2, 3);
         this.sky_box.render(context, program_state);
     }
 }
