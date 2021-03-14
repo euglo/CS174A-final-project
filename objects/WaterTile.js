@@ -23,7 +23,7 @@ export default class WaterTile extends CustomObject {
 
     render(context, program_state, length, width, height, model_transform=Mat4.identity()) {
         const tile_transform = model_transform.times(Mat4.scale(length, height, width));
-        this.shapes.tile.draw(context, program_state, model_transform.times(tile_transform), this.materials.water);
+        this.shapes.tile.draw(context, program_state, tile_transform, this.materials.water);
     }
 }
 
