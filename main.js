@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { CarEnd, Ceiling, Doors, Floor, Ground, Handlebars, Seat, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { BrickWall, CarEnd, Ceiling, Doors, Floor, Ground, Handlebars, Seat, VerticalBar, Wall, WaterTile } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -23,6 +23,7 @@ export class Main extends Scene {
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
         this.floor = new Floor();
         this.ground = new Ground();
+        this.brickWall = new BrickWall();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
         this.ceiling = new Ceiling();
@@ -76,6 +77,7 @@ export class Main extends Scene {
         this.floor.render(context, program_state, depth * 2, length * 2, -0.5);
         this.ceiling.render(context, program_state, 5, depth * 2, length * 2, 11.75);
         this.ground.render(context, program_state);
+        this.brickWall.render(context, program_state);
 
         // opposite side
         this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.translation(0, -.5, 1.5 - depth));

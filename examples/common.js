@@ -55,6 +55,44 @@ const Square = defs.Square =
         }
     }
 
+const Normal_Square = defs.Normal_Square =
+    class Normal_Square extends Shape {
+        // **Square** demonstrates two triangles that share vertices.  On any planar surface, the
+        // interior edges don't make any important seams.  In these cases there's no reason not
+        // to re-use data of the common vertices between triangles.  This makes all the vertex
+        // arrays (position, normals, etc) smaller and more cache friendly.
+        constructor() {
+            super("position", "normal", "texture_coord", "tangents");
+
+            const positions = Vector3.cast([-1, -1, 0], [1, -1, 0], [-1, 1, 0], [1, 1, 0]);
+            const normals = Vector3.cast([0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]);
+            const texture_coords = Vector3.cast([0, 0], [1, 0], [0, 1], [1, 1]);
+            // Calculate tangents
+            const edge1 = positions[0].minus(positions[2]);
+            const edge2 = positions[1].minus(positions[2]);
+            const deltaUV1 = texture_coords[0].minus(texture_coords[2]);
+            const deltaUV2 = texture_coords[1].minus(texture_coords[2]);
+            const f = 1 / (deltaUV1[0] * deltaUV2[1] - deltaUV2[0] * deltaUV1[1]);
+            const tangent1 = [0, 0, 0], bitangent1 = [0, 0, 0];
+            tangent1[0] = f * (deltaUV2[1] * edge1[0] - deltaUV1[1] * edge2[0]);
+            tangent1[1] = f * (deltaUV2[1] * edge1[1] - deltaUV1[1] * edge2[1]);
+            tangent1[2] = f * (deltaUV2[1] * edge1[2] - deltaUV1[1] * edge2[2]);
+            bitangent1[0] = f * (-deltaUV2[0] * edge1[0] + deltaUV1[0] * edge2[0]);
+            bitangent1[1] = f * (-deltaUV2[0] * edge1[1] + deltaUV1[0] * edge2[1]);
+            bitangent1[2] = f * (-deltaUV2[0] * edge1[2] + deltaUV1[0] * edge2[2]);
+
+            // Specify the 4 square corner locations, and match those up with normal vectors:
+            this.arrays.position = positions;
+            this.arrays.normal = normals;
+            // Arrange the vertices into a square shape in texture space too:
+            this.arrays.texture_coord = texture_coords;
+            // Use two triangles this time, indexing into four distinct vertices:
+            this.arrays.tangents = Vector3.cast(tangent1, tangent1, tangent1, tangent1);
+            //this.arrays.bitangents = Vector3.cast(bitangent1, bitangent1, bitangent1, bitangent1);
+            this.indices.push(0, 1, 2, 1, 3, 2);
+        }
+    }
+
 
 const Tetrahedron = defs.Tetrahedron =
     class Tetrahedron extends Shape {
@@ -151,6 +189,26 @@ const Cube = defs.Cube =
                     // Calling this function of a Square (or any Shape) copies it into the specified
                     // Shape (this one) at the specified matrix offset (square_transform):
                     Square.insert_transformed_copy_into(this, [], square_transform);
+                }
+        }
+    }
+
+const Normal_Cube = defs.Normal_Cube =
+    class Normal_Cube extends Shape {
+        // **Cube** A closed 3D shape, and the first example of a compound shape (a Shape constructed
+        // out of other Shapes).  A cube inserts six Square strips into its own arrays, using six
+        // different matrices as offsets for each square.
+        constructor() {
+            super("position", "normal", "texture_coord", "tangents");
+            // Loop 3 times (for each axis), and inside loop twice (for opposing cube sides):
+            for (let i = 0; i < 3; i++)
+                for (let j = 0; j < 2; j++) {
+                    const square_transform = Mat4.rotation(i == 0 ? Math.PI / 2 : 0, 1, 0, 0)
+                        .times(Mat4.rotation(Math.PI * j - (i == 1 ? Math.PI / 2 : 0), 0, 1, 0))
+                        .times(Mat4.translation(0, 0, 1));
+                    // Calling this function of a Square (or any Shape) copies it into the specified
+                    // Shape (this one) at the specified matrix offset (square_transform):
+                    Normal_Square.insert_transformed_copy_into(this, [], square_transform);
                 }
         }
     }
@@ -787,18 +845,25 @@ const Normal_Textured_Phong = defs.Normal_Textured_Phong =
             // ********* VERTEX SHADER *********
             return this.shared_glsl_code() + `
                 varying vec2 f_tex_coord;
-                attribute vec3 position;                            
+                attribute vec3 position, normal, tangents;                            
                 // Position is expressed in object coordinates.
                 attribute vec2 texture_coord;
+                varying mat3 TBN;
                 
                 uniform mat4 model_transform;
                 uniform mat4 projection_camera_model_transform;
         
-                void main(){              
+                void main(){         
+                    vec3 T = normalize( vec3( model_transform * vec4( tangents, 0.0 ) ) );
+                    N = normalize( mat3( model_transform ) * normal / squared_scale);
+                    vec3 B = cross( N, T );
+                    TBN = mat3( T, B, N );
+
+                    
                     // The vertex's final resting place (in NDCS):
                     gl_Position = projection_camera_model_transform * vec4( position, 1.0 );
                     // The final normal vector in screen space.
-                    // N = normalize( mat3( model_transform ) * normal / squared_scale);
+                    
                     vertex_worldspace = ( model_transform * vec4( position, 1.0 ) ).xyz;
                     // Turn the per-vertex texture coordinate into an interpolated variable.
                     f_tex_coord = texture_coord;
@@ -813,12 +878,14 @@ const Normal_Textured_Phong = defs.Normal_Textured_Phong =
                 varying vec2 f_tex_coord;
                 uniform sampler2D texture;
                 uniform sampler2D normal_texture;
+                varying mat3 TBN;
         
                 void main(){
                     // Obtain normal from normal map in range [0, 1]
                     vec3 normal = texture2D(normal_texture, f_tex_coord).rgb;
                     // Transform normal vector to range [-1, 1]
-                    normal = normalize(normal * 2.0 - 1.0);
+                    normal = normal * 2.0 - 1.0;
+                    normal = normalize( TBN * normal );
 
                     // Sample the texture image in the correct place:
                     vec4 tex_color = texture2D( texture, f_tex_coord );
