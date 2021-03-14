@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { CarEnd, Ceiling, Doors, Ground, Handlebars, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { CarEnd, Ceiling, Doors, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -24,6 +24,7 @@ export class Main extends Scene {
         this.ground = new Ground();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
+        this.pillar = new Pillar();
         this.sky_box = new SkyBox();
         
         this.ceiling = new Ceiling();
@@ -165,9 +166,10 @@ export class Main extends Scene {
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
 
         let model_transform = Mat4.identity();
-            
-        // Displaying custom objects  
+    
+        // Displaying custom objects
         this.render_train_cars(context, program_state, 2, 3);
+        this.pillar.render(context, program_state, 0.8, 6, Mat4.translation(-5,-2,-25));
         this.sky_box.render(context, program_state);
     }
 }
