@@ -200,7 +200,7 @@ export class Main extends Scene {
         }
         const angle = Math.atan(this.train_movement.get_acceleration()/9.8);
         this.train_move = this.train_start || this.train_stop;
-        this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 0, -22));
+        this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 1, -22));
         
         // Displaying custom objects
         this.render_train_cars(context, program_state, angle, 2, 3);

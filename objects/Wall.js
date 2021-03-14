@@ -58,10 +58,10 @@ export default class Wall extends CustomObject {
 
         const window_color = color(0.5, 0.5, 0.5, 0.1);
 
-        this.shapes.wall_bottom.draw(context, program_state, wall_bottom_transform, this.materials.test.override({color: light_grey}));
-        this.shapes.wall_left.draw(context, program_state, wall_left_transform, this.materials.test.override({color: light_grey}));
-        this.shapes.wall_right.draw(context, program_state, wall_right_transform, this.materials.test.override({color:light_grey}));
-        this.shapes.wall_top.draw(context, program_state, wall_top_transform, this.materials.test.override({color: light_grey}));
+        this.shapes.wall_bottom.draw(context, program_state, wall_bottom_transform, this.materials.wall.override({color: palette.wall}));
+        this.shapes.wall_left.draw(context, program_state, wall_left_transform, this.materials.wall.override({color: palette.wall}));
+        this.shapes.wall_right.draw(context, program_state, wall_right_transform, this.materials.wall.override({color:palette.wall}));
+        this.shapes.wall_top.draw(context, program_state, wall_top_transform, this.materials.wall.override({color: palette.wall}));
         //this.shapes.window.draw(context, program_state, window_transform, this.materials.test.override({color: window_color}));
 
         this.shapes.train_map.draw(context, program_state, map_transform, this.materials.wall.override({color: palette.poster}));
