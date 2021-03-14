@@ -34,7 +34,7 @@ export default class Pillar extends CustomObject {
         top_transform = top_transform.times(Mat4.scale(stick_width, stick_width, stick_width));
         this.shapes.pillar_top.draw(context, program_state, top_transform, this.materials.test.override({color: gray}));
         
-        model_transform = model_transform.times(Mat4.rotation(1.54, 1, 0, 0)); //rotate bar vertical
+        model_transform = model_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0)); //rotate bar vertical
         model_transform = model_transform.times(Mat4.scale(stick_width, stick_width, stick_length));
         this.shapes.pillar_body.draw(context, program_state, model_transform, this.materials.test.override({color: gray}));
     }

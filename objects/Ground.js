@@ -30,13 +30,14 @@ export default class Ground extends CustomObject {
     }
 
     /* Custom object functions */
-    render(context, program_state, ground_width=10, ground_length=40, ground_height=20, model_transform=Mat4.identity(), ) {
+    render(context, program_state, ground_width=10, ground_length=40, ground_height=0, model_transform=Mat4.identity(), ) {
       const ground_thickness = 0.15;
 
       const ground_transform = model_transform
                                   .times(Mat4.translation(0, ground_height, 0))
-                                  .times(Mat4.scale(ground_length / 2, ground_thickness, ground_width / 2)); // length & width / 2 bc 2x2x2 cube
-      // ground                           
+                                  .times(Mat4.scale(ground_length / 2, ground_thickness, ground_width / 2)) // length & width / 2 bc 2x2x2 cube
+                                  .times(Mat4.translation(0, -1, 0))
+    //   ground                   
       this.shapes.cube.draw(context, program_state, ground_transform, this.materials.ground);
     }
 }

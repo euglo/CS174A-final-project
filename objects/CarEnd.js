@@ -34,7 +34,7 @@ export default class CarEnd extends CustomObject {
 
     /* Custom object functions */
     render(context, program_state, wall_width=60, wall_height=50, door_height=40, model_transform=Mat4.identity()) {
-      const door_width = 5; // always 20, no matter size of wall or door
+      const door_width = door_height / 2; // always 20, no matter size of wall or door
       const wall_thickness = 0.25;
 
       // ensure that door height does not exceed wall height
@@ -43,25 +43,25 @@ export default class CarEnd extends CustomObject {
       }
 
       const door_base_transform = model_transform
-                                            .times(Mat4.translation(0, 3, 0))
-                                            .times(Mat4.scale(door_width / 2, 3, wall_thickness));
+                                            .times(Mat4.translation(0, 0.15 * door_width, 0))
+                                            .times(Mat4.scale(door_width / 2, 0.15 * door_width, wall_thickness));
       const door_left_transform = model_transform
                                             .times(Mat4.translation(- door_width / 2, door_height / 2, 0))
-                                            .times(Mat4.scale(2, door_height / 2, wall_thickness))
+                                            .times(Mat4.scale(0.1 * door_width, door_height / 2, wall_thickness))
                                             .times(Mat4.translation(1, 0, 0));
       const door_right_transform = model_transform
                                             .times(Mat4.translation(door_width / 2, door_height / 2, 0))
-                                            .times(Mat4.scale(2, door_height / 2, wall_thickness))
+                                            .times(Mat4.scale(0.1 * door_width, door_height / 2, wall_thickness))
                                             .times(Mat4.translation(-1, 0, 0));
       const door_top_transform = model_transform
                                             .times(Mat4.translation(0, door_height, 0))
-                                            .times(Mat4.scale(door_width / 2, 3, wall_thickness))
+                                            .times(Mat4.scale(door_width / 2, 0.15 * door_width, wall_thickness))
                                             .times(Mat4.translation(0, -1, 0));
       
       // base door_handle off of left door piece
       const door_handle_transform = door_left_transform
                                             .times(Mat4.scale(1 / 2, 1 / (door_height / 2), 1)) // change back to cube
-                                            .times(Mat4.scale(0.5, 2, 2));
+                                            .times(Mat4.scale(0.5, 0.05 * door_height, 2));
       const door_window_transform = model_transform
                                             .times(Mat4.translation(0, door_height / 2, 0))
                                             .times(Mat4.scale(door_width / 2, door_height / 2, 0.5 * wall_thickness));
@@ -101,11 +101,11 @@ export default class CarEnd extends CustomObject {
       const left_poster_transform = wall_left_strip
                                             .times(Mat4.scale(1 / wall_width_scale, 1 / (door_height / 2), 1 / wall_thickness)) // undo wall scaling
                                             .times(Mat4.translation(0, door_height / 4, 0))
-                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 1));
+                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 0.5));
       const right_poster_transform = wall_right_strip
                                             .times(Mat4.scale(1 / wall_width_scale, 1 / (door_height / 2), 1 / wall_thickness)) // undo wall scaling
                                             .times(Mat4.translation(0, door_height / 4, 0))
-                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 1));
+                                            .times(Mat4.scale(0.8 * wall_width_scale, 0.8 * door_height / 4, 0.5));
 
       // door base
       this.shapes.cube.draw(context, program_state, door_base_transform, this.materials.door);

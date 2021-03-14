@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { CarEnd, Ceiling, Doors, Ground, Handlebars, Pillar, Seat, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { CarEnd, Ceiling, Doors, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 import { Movement } from './Movement.js';
 
 const {
@@ -21,10 +21,13 @@ export class Main extends Scene {
         this.materials = {
         }
 
-        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
         this.ground = new Ground();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
+        this.pillar = new Pillar();
+        this.sky_box = new SkyBox();
+        
         this.ceiling = new Ceiling();
         this.wall = new Wall();
         this.handlebars = new Handlebars();
@@ -36,6 +39,11 @@ export class Main extends Scene {
         this.train_movement = new Movement();
         this.train_start = false;
         this.train_stop = false;
+
+        this.horizontal_look = 0;
+        this.vertical_look = 5;
+        this.dt = 0;
+        this.detached = false;
     }
 
     make_control_panel() {
@@ -60,17 +68,108 @@ export class Main extends Scene {
                 this.train_start = false;
             }
         });
+        this.new_line();
+        this.key_triggered_button("Look left", ["a"], () => {
+            if (this.horizontal_look > -9) {
+                this.horizontal_look -= 20 * this.dt;
+            }
+        })
+        this.key_triggered_button("Look right", ["d"], () => {
+            if (this.horizontal_look < 9) {
+                this.horizontal_look += 20 * this.dt;
+            }
+        });
+        this.key_triggered_button("Look up", ["w"], () => {
+            if (this.vertical_look < 7) {
+                this.vertical_look += 20 * this.dt;
+            }
+        })
+        this.key_triggered_button("Look down", ["s"], () => {
+            if (this.vertical_look > -3) {
+                this.vertical_look -= 20 * this.dt;
+            }
+        });
+        this.new_line();
+        this.key_triggered_button("Detach", ["y"], () => {
+            this.detached = true;
+        });
+        this.key_triggered_button("Reattach", ["t"], () => {
+            this.detached = false;
+            this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
+            this.horizontal_look = 0;
+            this.vertical_look = 5;
+      });
+    }
+
+    render_train_cars(context, program_state, num_cars=3, space_btwn_cars=5) {
+        const t = program_state.animation_time / 1000;
+
+        // train dimensions
+        const depth = 7;
+        const length = 25;
+        const height = 12;
+
+        // train object translation factors
+        const bar_depth = 2 - depth;
+        const seat_depth = 1.5 - depth;
+        const door_length = 38 - length;
+        const inner_bar_length = 34.5 - length;
+        const outer_bar_length = 41.5 - length;
+        const outer_seat_length = length - 4.6;
+
+        for(let i = 0; i < num_cars; i++) {
+
+            // train car translation factors
+            const train_car_translation = Mat4.translation(i * (length * 2 + space_btwn_cars), 0, 0);
+
+            // Displaying custom objects
+            this.ground.render(context, program_state, depth * 2, length * 2, 0, train_car_translation);
+            this.ceiling.render(context, program_state, 5, depth * 2, length * 2, height, train_car_translation);
+
+            // opposite side
+            this.wall.render(context, program_state, length, 5, 3, -depth, train_car_translation);
+            this.car_end.render(context, program_state, depth * 2, height, 10, train_car_translation.times(Mat4.translation(-length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
+            this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, length * 2, train_car_translation.times(Mat4.translation(0, 9, 2 - depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(-inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(outer_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.translation(-outer_bar_length, height / 2, bar_depth)));
+            this.seat.render(context, program_state, 8.5, train_car_translation.times(Mat4.translation(0, 0, seat_depth)));
+            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.translation(outer_seat_length, 0, seat_depth)));
+            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.translation(-outer_seat_length, 0, seat_depth)));
+            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.translation(door_length, 0, -depth)));
+            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.translation(-door_length, 0, -depth)));
+
+            // other side
+            this.wall.render(context, program_state, length, 5, 3, depth, train_car_translation);
+            this.car_end.render(context, program_state, depth * 2, height, 10, train_car_translation.times(Mat4.translation(length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
+            this.handlebars.render(context, program_state, t, Math.atan(this.acceleration/9.8), this.trainMove, 13, length * 2, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(0, 9, 2 - depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-inner_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(outer_bar_length, height / 2, bar_depth)));
+            this.vertical_bar.render(context, program_state, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-outer_bar_length, height / 2, bar_depth)));
+            this.seat.render(context, program_state, 8.5, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(0, 0, seat_depth)));
+            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(outer_seat_length, 0, seat_depth)));
+            this.seat.render(context, program_state, 3, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-outer_seat_length, 0, seat_depth)));
+            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(door_length, 0, -depth)));
+            this.doors.render(context, program_state, 10, 0.25, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(-door_length, 0, -depth)));
+
+        }
+        
     }
 
     display(context, program_state) {
+        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
+        this.dt = dt;
         // display():  Called once per frame of animation.
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
+        if (!this.detached) {
+            this.initial_camera_location =  Mat4.look_at(vec3(0, 5, 7), vec3(this.horizontal_look, this.vertical_look, 0), vec3(0, 1, 0));
+        }
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
-            // Define the global camera and projection matrices, which are stored in program_state.
-            program_state.set_camera(this.initial_camera_location);
         }
-
+        program_state.set_camera(this.initial_camera_location);
         program_state.projection_transform = Mat4.perspective(
             Math.PI / 4, context.width / context.height, .1, 1000);
 
@@ -79,7 +178,7 @@ export class Main extends Scene {
         program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
 
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
-        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
+
         let model_transform = Mat4.identity();
 
         //train movement
@@ -92,40 +191,10 @@ export class Main extends Scene {
         const angle = Math.atan(this.train_movement.get_acceleration()/9.8);
         const train_move = this.train_start || this.train_stop;
         this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 0, -22));
-
-            
-        const depth = 7;
-        const length = 25;
+    
         // Displaying custom objects
-        this.ground.render(context, program_state, depth * 2, length * 2, -0.5);
-        this.ceiling.render(context, program_state, 5, depth * 2, length * 2, 11.75);
-        // opposite side
-        this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.translation(0, -.5, 1.5 - depth));
-        this.car_end.render(context, program_state, depth * 2, 12, 10.75, Mat4.translation(-length, -.5, 0).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
-        this.handlebars.render(context, program_state, t, angle, train_move, Mat4.translation(0, 9, 2 - depth));
-        this.vertical_bar.render(context, program_state, 12, Mat4.translation(34.5 - length, 5.5, 2 - depth));
-        this.vertical_bar.render(context, program_state, 12, Mat4.translation(-(34.5 - length), 5.5, 2 - depth));
-        this.vertical_bar.render(context, program_state, 12, Mat4.translation(41.5 - length, 5.5, 2 - depth));
-        this.vertical_bar.render(context, program_state, 12, Mat4.translation(-(41.5 - length), 5.5, 2 - depth));
-        this.seat.render(context, program_state, 8.5, Mat4.translation(0, 0, 1.5 - depth));
-        this.seat.render(context, program_state, 3, Mat4.translation(length - 4.6, 0, 1.5 - depth));
-        this.seat.render(context, program_state, 3, Mat4.translation(-(length - 4.6), 0, 1.5 - depth));
-        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(38 - length, 2, -depth)); // feel free to experiment with the parameters
-        this.doors.render(context, program_state, 10, 0.25, Mat4.translation(-(38 - length), 2, -depth)); 
-
-        // other side
-        this.wall.render(context, program_state, length, 5, 3, -1.5, Mat4.scale(1, 1, -1).times(Mat4.translation(0, -.5, 1.5 - depth)));
-        this.car_end.render(context, program_state, depth * 2, 12, 10.75, Mat4.translation(length, -.5, 0).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
-        this.handlebars.render(context, program_state, t, angle, train_move, Mat4.scale(1, 1, -1).times(Mat4.translation(0, 9, 2 - depth)));
-        this.vertical_bar.render(context, program_state, 12, Mat4.scale(1, 1, -1).times(Mat4.translation(34.5 - length, 5.5, 2 - depth)));
-        this.vertical_bar.render(context, program_state, 12, Mat4.scale(1, 1, -1).times(Mat4.translation(-(34.5 - length), 5.5, 2 - depth)));
-        this.vertical_bar.render(context, program_state, 12, Mat4.scale(1, 1, -1).times(Mat4.translation(41.5 - length, 5.5, 2 - depth)));
-        this.vertical_bar.render(context, program_state, 12, Mat4.scale(1, 1, -1).times(Mat4.translation(-(41.5 - length), 5.5, 2 - depth)));
-        this.seat.render(context, program_state, 8.5, Mat4.scale(1, 1, -1).times(Mat4.translation(0, 0, 1.5 - depth)));
-        this.seat.render(context, program_state, 3, Mat4.scale(1, 1, -1).times(Mat4.translation(length - 4.6, 0, 1.5 - depth)));
-        this.seat.render(context, program_state, 3, Mat4.scale(1, 1, -1).times(Mat4.translation(-(length - 4.6), 0, 1.5 - depth)));
-        this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(38 - length, 2, -depth))); // feel free to experiment with the parameters
-        this.doors.render(context, program_state, 10, 0.25, Mat4.scale(1, 1, -1).times(Mat4.translation(-(38 - length), 2, -depth)));
-        this.seat.render(context, program_state, 5);
+        this.render_train_cars(context, program_state, 2, 3);
+        this.pillar.render(context, program_state, 0.8, 6, Mat4.translation(-5,-2,-25));
+        this.sky_box.render(context, program_state);
     }
 }
