@@ -188,7 +188,6 @@ class Water_Shader extends Shader {
         }
 
         float surface3 ( vec3 coord ) {
-
             float frequency = 7.0;
             float n = 0.4;
   
@@ -207,7 +206,6 @@ class Water_Shader extends Shader {
         // TODO:  Complete the main function of the vertex shader (Extra Credit Part II).
         return this.shared_glsl_code() + `
         attribute vec3 position, normal;
-        varying vec3 vPosition;
         varying vec2 vUv;
         uniform mat4 projection_camera_model_transform;
         uniform mat4 model_transform;
@@ -219,11 +217,10 @@ class Water_Shader extends Shader {
 
             vec4 proj_position;
             proj_position = projection_camera_model_transform * vec4( position, 1.0 );
-            vPosition = proj_position.xyz;
             
             // Calculate surface displacement
             vUv = vec2( pow( position.x , 1. ), pow( position.z, 1. ) ) / 2.;
-            vec2 uvMax = ( 2.0 * asin( sin( 2.0 * PI * vUv ) ) ) / PI;
+            vec2 uvMax = ( 5.0 * asin( sin( 2.0 * PI * vUv.xy ) ) ) / PI;
 
             float n = surface3( vec3( uvMax * uvScale, animation_time * speed ) );
 
@@ -238,12 +235,12 @@ class Water_Shader extends Shader {
         // ********* FRAGMENT SHADER *********
         // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
         return this.shared_glsl_code() + `
-        varying vec3 vPosition;
+        varying vec2 vUv;
 
         void main(){
             // Compute color of point, adding light effects
             vec3 color;
-            vec3 waterEffect = water( vPosition.x, vPosition.y );
+            vec3 waterEffect = water( vUv.x, vUv.y );
             color = waterEffect + baseColor;
             gl_FragColor = vec4( color * ambient, 1. );
             gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );

@@ -18,7 +18,7 @@ export default class Wall extends CustomObject {
         this.materials = {
             wall: new Material(new Normal_Textured_Phong(), 
                 { ambient: 0.8, 
-                  texture: new Texture('../assets/brickWall.jpg'), normal_texture: new Texture('../assets/brickWallNormal.jpg') }),
+                  texture: new Texture('../assets/cartoonStone.jpg'), normal_texture: new Texture('../assets/cartoonStoneNormalMap.png') }),
         }
     }
     

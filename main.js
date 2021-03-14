@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { BrickWall, CarEnd, Ceiling, Doors, Floor, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { StoneWall, CarEnd, Ceiling, Doors, Floor, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 import { Movement } from './Movement.js';
 import Palette from './constants/Palette.js';
 
@@ -24,7 +24,7 @@ export class Main extends Scene {
       
         this.floor = new Floor();        
         this.ground = new Ground();
-        this.brickWall = new BrickWall();
+        this.stoneWall = new StoneWall();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
         this.pillar = new Pillar();
@@ -179,7 +179,7 @@ export class Main extends Scene {
         // TODO: Lighting (Requirement 2)
         const light_position = vec4(0, 5, 5, 1);
         const sun_position = vec4(0, 100, 5, 1);
-        program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 100),
+        program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000),
             new Light(sun_position, color(1, 1, 1, 1), 10000)];
 
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
@@ -198,9 +198,9 @@ export class Main extends Scene {
         this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 1, -22));
         
         // Displaying custom objects
-        this.water_tile.render(context, program_state, 100, 30, 1, Mat4.translation(0, -9, -70));
-        this.ground.render(context, program_state, 100, 200, 1, Mat4.translation(0, -5, 0));
-        this.brickWall.render(context, program_state, 1, 80, 25, Mat4.translation(0, 8, 20));
+        this.water_tile.render(context, program_state, 120, 30, 1, Mat4.translation(0, -3.5, -64));
+        this.ground.render(context, program_state, 80, 200, 1, Mat4.translation(0, -1, 0));
+        this.stoneWall.render(context, program_state, 2, 200, 25, Mat4.translation(0, 8, 20));
         this.render_train_cars(context, program_state, angle, 2, 3);
         this.sky_box.render(context, program_state);
     }
