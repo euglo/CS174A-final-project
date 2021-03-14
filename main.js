@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { CarEnd, Ceiling, Doors, Ground, Handlebars, Seat, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { CarEnd, Ceiling, Doors, Ground, Handlebars, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -24,6 +24,8 @@ export class Main extends Scene {
         this.ground = new Ground();
         this.seat = new Seat();
         this.water_tile = new WaterTile();
+        this.sky_box = new SkyBox();
+        
         this.ceiling = new Ceiling();
         this.wall = new Wall();
         this.handlebars = new Handlebars();
@@ -125,6 +127,8 @@ export class Main extends Scene {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
             
+        // Displaying custom objects  
         this.render_train_cars(context, program_state, 2, 3);
+        this.sky_box.render(context, program_state);
     }
 }
