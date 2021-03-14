@@ -23,9 +23,11 @@ export default class Pillar extends CustomObject {
     }
 
     /* Custom object functions */
-    render(context, program_state, stick_width = 0.8, stick_length = 6, model_transform=Mat4.identity()) {
+    render(context, program_state, model_transform=Mat4.identity()) {
 
         const gray = hex_color("#C0C0C0");
+        const stick_width = 0.8; 
+        const stick_length = 6;
    
         let top_transform = model_transform;
         top_transform = top_transform.times(Mat4.translation(0, stick_length - (stick_length/2.0), -0.05));

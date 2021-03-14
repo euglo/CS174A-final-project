@@ -1,5 +1,6 @@
 import {defs, tiny} from './examples/common.js';
 import { CarEnd, Ceiling, Doors, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { Movement } from './Movement.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -31,9 +32,13 @@ export class Main extends Scene {
         this.wall = new Wall();
         this.handlebars = new Handlebars();
         this.vertical_bar = new VerticalBar();
-        this.acceleration = 0.0;
         this.doors = new Doors();
         this.car_end = new CarEnd();
+        this.pillar = new Pillar();
+
+        this.train_movement = new Movement();
+        this.train_start = false;
+        this.train_stop = false;
 
         this.horizontal_look = 0;
         this.vertical_look = 5;
@@ -51,8 +56,17 @@ export class Main extends Scene {
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
         this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
         this.new_line();
-        this.key_triggered_button("Train start/stop", ["m"], () => {
-            this.trainMove = !this.trainMove;
+        this.key_triggered_button("Train start", ["n"], () => {
+            if (!this.train_start && !this.train_stop) {
+                this.train_start = true;
+                this.train_stop = false;
+            }
+        });
+        this.key_triggered_button("Train stop", ["m"], () => {
+            if (!this.train_start && !this.train_stop) {
+                this.train_stop = true;
+                this.train_start = false;
+            }
         });
         this.new_line();
         this.key_triggered_button("Look left", ["a"], () => {
@@ -166,6 +180,17 @@ export class Main extends Scene {
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
 
         let model_transform = Mat4.identity();
+
+        //train movement
+        if(this.train_start) {
+            this.train_start = this.train_movement.train_start();
+        }
+        if(this.train_stop) {
+            this.train_stop = this.train_movement.train_stop();
+        }
+        const angle = Math.atan(this.train_movement.get_acceleration()/9.8);
+        const train_move = this.train_start || this.train_stop;
+        this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 0, -22));
     
         // Displaying custom objects
         this.render_train_cars(context, program_state, 2, 3);
