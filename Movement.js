@@ -3,6 +3,7 @@ class Movement {
         this.acceleration = 0;
         this.current_velocity = 0;
         this.dist = -15; //initial location
+        this.unmod_dist = -15;
         this.dt = 0;
         this.reverse = false;
     
@@ -48,6 +49,7 @@ class Movement {
           this.dt = 0;
       }
       this.dist += this.current_velocity * dt;
+      this.unmod_dist += this.current_velocity * dt;
 
       if(this.current_velocity != 0) {
           this.dt += dt;
@@ -60,7 +62,10 @@ class Movement {
 
     get_translation(dt) {
         this.common_move(dt);
-        return this.dist;
+        return {
+            dist: this.dist,
+            unmod_dist: this.unmod_dist,
+        };
     }
 }
 

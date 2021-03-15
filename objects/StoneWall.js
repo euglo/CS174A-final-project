@@ -17,13 +17,17 @@ export default class Wall extends CustomObject {
         
         this.materials = {
             wall: new Material(new Normal_Textured_Phong(), 
-                { ambient: 0.8, 
-                  texture: new Texture('../assets/cartoonStone.jpg'), normal_texture: new Texture('../assets/cartoonStoneNormalMap.png') }),
+                { 
+                    ambient: 0.8, 
+                    texture: new Texture('../assets/cartoonStone.jpg'), 
+                    normal_texture: new Texture('../assets/cartoonStoneNormalMap.png'),
+                    dist: 0,
+                }),
         }
     }
     
     /* Custom object functions */
-    render(context, program_state, wall_width=1, wall_length=80, wall_height=25, model_transform=Mat4.identity(), ) {
+    render(context, program_state, wall_width=1, wall_length=80, wall_height=25, dist, model_transform=Mat4.identity(), ) {
         const wall_transform = model_transform.times(Mat4.scale(wall_length / 2, wall_height / 2, wall_width / 2));
         
         const texture_scale = 15;
@@ -35,6 +39,7 @@ export default class Wall extends CustomObject {
         }
 
         // Draw wall                          
-        this.shapes.cube.draw(context, program_state, wall_transform, this.materials.wall);
+        this.shapes.cube.draw(context, program_state, wall_transform, 
+            this.materials.wall.override({dist: dist / (wall_length / texture_scale)}));
     }
 }

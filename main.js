@@ -187,7 +187,7 @@ export class Main extends Scene {
         const train_light = this.normal_light ? 1000 : 100;
         const sun_position = vec4(0, 100, -50, 1);
         program_state.lights = [new Light(train_light_position, color(1, 1, 1, 1), train_light),
-            new Light(sun_position, color(1, 1, 1, 1), 5000)];
+            new Light(sun_position, color(1, 1, 1, 1), 4000)];
 
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
 
@@ -201,13 +201,15 @@ export class Main extends Scene {
             this.train_stop = this.train_movement.train_stop();
         }
         const angle = Math.atan(this.train_movement.get_acceleration()/9.8);
+        const { dist, unmod_dist } = this.train_movement.get_translation(dt);
+
         this.train_move = this.train_start || this.train_stop;
-        this.pillar.render(context, program_state, Mat4.translation(this.train_movement.get_translation(dt), 1, -22));
+        this.pillar.render(context, program_state, Mat4.translation(dist, 1, -22));
         
         // Displaying custom objects
         this.water_tile.render(context, program_state, 120, 30, 1, Mat4.translation(0, -3.5, -64));
-        this.ground.render(context, program_state, 80, 200, 1, Mat4.translation(0, -1, 0));
-        this.stoneWall.render(context, program_state, 2, 200, 25, Mat4.translation(0, 8, 20));
+        this.ground.render(context, program_state, 80, 200, 1, unmod_dist, Mat4.translation(0, -1, 0));
+        this.stoneWall.render(context, program_state, 2, 200, 25, unmod_dist, Mat4.translation(0, 8, 20));
         this.render_train_cars(context, program_state, angle, 2, 3);
         this.sky_box.render(context, program_state);
     }

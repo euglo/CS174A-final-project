@@ -17,13 +17,17 @@ export default class Ground extends CustomObject {
         
         this.materials = {
             ground: new Material(new Normal_Textured_Phong(), 
-                { ambient: 1,
-                  texture: new Texture('../assets/whiteSand.jpg'), normal_texture: new Texture('../assets/whiteSandNormal.png') }),
+                { 
+                    ambient: 1,
+                    texture: new Texture('../assets/whiteSand.jpg'), 
+                    normal_texture: new Texture('../assets/whiteSandNormal.png') ,
+                    dist: 0,
+                }),
         }
     }
     
     /* Custom object functions */
-    render(context, program_state, ground_width=25, ground_length=80, ground_height=1, model_transform=Mat4.identity(), ) {
+    render(context, program_state, ground_width=25, ground_length=80, ground_height=1, dist, model_transform=Mat4.identity(), ) {
         const ground_transform = model_transform.times(Mat4.scale(ground_length / 2, ground_height / 2, ground_width / 2));
         
         const texture_scale = 15;
@@ -35,6 +39,7 @@ export default class Ground extends CustomObject {
         }
 
         // Draw ground                          
-        this.shapes.cube.draw(context, program_state, ground_transform, this.materials.ground);
+        this.shapes.cube.draw(context, program_state, ground_transform, 
+            this.materials.ground.override({dist: dist / (ground_length / texture_scale)}));
     }
 }

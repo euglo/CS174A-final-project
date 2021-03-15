@@ -904,17 +904,21 @@ const Normal_Textured_Phong = defs.Normal_Textured_Phong =
                 varying vec2 f_tex_coord;
                 uniform sampler2D texture;
                 uniform sampler2D normal_texture;
+                uniform float dist;
                 varying mat3 TBN;
         
                 void main(){
                     // Obtain normal from normal map in range [0, 1]
-                    vec3 normal = texture2D(normal_texture, f_tex_coord).rgb;
+                    float translate_x = mod( dist, 1. );
+                    vec2 translated_tex = vec2( f_tex_coord.x + translate_x, f_tex_coord.y );
+
+                    vec3 normal = texture2D(normal_texture, translated_tex).rgb;
                     // Transform normal vector to range [-1, 1]
                     normal = normal * 2.0 - 1.0;
                     normal = normalize( TBN * normal );
 
                     // Sample the texture image in the correct place:
-                    vec4 tex_color = texture2D( texture, f_tex_coord );
+                    vec4 tex_color = texture2D( texture, translated_tex );
                     if( tex_color.w < .01 ) discard;
                                                                              // Compute an initial (ambient) color:
                     gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
@@ -926,6 +930,8 @@ const Normal_Textured_Phong = defs.Normal_Textured_Phong =
         update_GPU(context, gpu_addresses, gpu_state, model_transform, material) {
             // update_GPU(): Add a little more to the base class's version of this method.
             super.update_GPU(context, gpu_addresses, gpu_state, model_transform, material);
+
+            context.uniform1f(gpu_addresses.dist, material.dist || 0);
 
             if (material.texture && material.texture.ready && material.normal_texture && material.normal_texture.ready) {
                 // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
