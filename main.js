@@ -49,6 +49,8 @@ export class Main extends Scene {
         this.vertical_look = 5.5;
         this.dt = 0;
         this.detached = false;
+
+        this.normal_light = false;
     }
 
     make_control_panel() {
@@ -102,6 +104,10 @@ export class Main extends Scene {
         this.key_triggered_button("Change train colors", ["c"], () => {
             this.palette_num = (this.palette_num + 1) % Palette.length; // loop palette colors
             this.palette = Palette[this.palette_num];
+        });
+
+        this.key_triggered_button("Add light for normal mapping", ["l"], () => {
+            this.normal_light ^= 1;
         });
     }
 
@@ -177,10 +183,11 @@ export class Main extends Scene {
             Math.PI / 4, context.width / context.height, .1, 1000);
 
         // TODO: Lighting (Requirement 2)
-        const light_position = vec4(0, 5, 5, 1);
-        const sun_position = vec4(0, 100, 5, 1);
-        program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000),
-            new Light(sun_position, color(1, 1, 1, 1), 10000)];
+        const train_light_position = vec4(0, 5, 5, 1);
+        const train_light = this.normal_light ? 1000 : 100;
+        const sun_position = vec4(0, 100, -50, 1);
+        program_state.lights = [new Light(train_light_position, color(1, 1, 1, 1), train_light),
+            new Light(sun_position, color(1, 1, 1, 1), 5000)];
 
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
 
