@@ -2,10 +2,10 @@ import {defs, tiny} from '../examples/common.js';
 import CustomObject from './CustomObject.js';
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
 } = tiny;
 
-const {Cube} = defs;
+const {Cube, Textured_Phong} = defs;
 
 // Wall: class that renders wall & window
 export default class Wall extends CustomObject {
@@ -22,14 +22,31 @@ export default class Wall extends CustomObject {
             poster: new Cube(),
         };
 
+        this.shapes.train_map.arrays.texture_coord.forEach( (v, i, arr) => 
+            arr[i] = vec(0.75 * v[0] + 0.13, 0.35 * v[1] + 0.35)
+        )
+        this.shapes.disp.arrays.texture_coord.forEach( (v, i, arr) => 
+            arr[i] = vec(0.4 * v[0], 0.15 * v[1] + 0.42)
+        )
+
         this.materials = {
             wall: new Material(new defs.Phong_Shader(),
                 {ambient: .4, diffusivity: .6}),
+            display: new Material(new Texture_Scroll_X(), {
+                    color: hex_color("#000000"),
+                    ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                    texture: new Texture("assets/wall-posters/next-stop-spirit-realm.png")
+                }),
+            map: new Material(new Textured_Phong(), {
+                    color: hex_color("#000000"),
+                    ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                    texture: new Texture("assets/wall-posters/map-spirit-world.png")
+                }),
         }
     }
 
     /* Custom object functions */
-    render(context, program_state, palette, wall_width=20, window_width=5, window_height=3, z_axis=-1.5, model_transform=Mat4.identity()) {
+    render(context, program_state, palette, texture, wall_width=20, window_width=5, window_height=3, z_axis=-1.5, model_transform=Mat4.identity()) {
         
         const map_width=2;
         const map_height=1;
@@ -51,8 +68,8 @@ export default class Wall extends CustomObject {
     
         const window_transform = model_transform.times(Mat4.translation(0,window_position,z_axis)).times(Mat4.scale(window_width, window_height, 0));
 
-        const map_transform = model_transform.times(Mat4.translation(-3, window_position+window_height+map_height+.5, z_axis+.1)).times(Mat4.scale(map_width, map_height, 0));
-        const disp_transform = model_transform.times(Mat4.translation(2.5, window_position+window_height+disp_height+.5, z_axis+.1)).times(Mat4.scale(disp_width, disp_height, 0));
+        const map_transform = model_transform.times(Mat4.translation(-3, window_position+window_height+map_height+.5, z_axis+.1)).times(Mat4.scale(map_width, map_height, 0.01));
+        const disp_transform = model_transform.times(Mat4.translation(2.5, window_position+window_height+disp_height+.5, z_axis+.1)).times(Mat4.scale(disp_width, disp_height, 0.01));
         const poster_1_transform = model_transform.times(Mat4.translation(-(window_width+poster_width+.5), window_position,z_axis+.1)).times(Mat4.scale(poster_width, poster_height, 0));
         const poster_2_transform = model_transform.times(Mat4.translation((window_width+poster_width+.5), window_position,z_axis+.1)).times(Mat4.scale(poster_width, poster_height, 0));
 
@@ -64,10 +81,44 @@ export default class Wall extends CustomObject {
         this.shapes.wall_top.draw(context, program_state, wall_top_transform, this.materials.wall.override({color: palette.wall}));
         //this.shapes.window.draw(context, program_state, window_transform, this.materials.test.override({color: window_color}));
 
-        this.shapes.train_map.draw(context, program_state, map_transform, this.materials.wall.override({color: palette.poster}));
-        this.shapes.disp.draw(context, program_state, disp_transform, this.materials.wall.override({color: palette.poster}));
+        this.shapes.train_map.draw(context, program_state, map_transform, this.materials.map.override({texture: texture.map}));
+        this.shapes.disp.draw(context, program_state, disp_transform, this.materials.display.override({texture: texture.display}));
         this.shapes.poster.draw(context, program_state, poster_1_transform, this.materials.wall.override({color: palette.poster}));
         this.shapes.poster.draw(context, program_state, poster_2_transform, this.materials.wall.override({color: palette.poster}));
     }
 
+}
+
+class Texture_Scroll_X extends Textured_Phong {
+    update_GPU(context, gpu_addresses, gpu_state, model_transform, material) {
+        // update_GPU(): Add a little more to the base class's version of this method.
+        super.update_GPU(context, gpu_addresses, gpu_state, model_transform, material);
+        // Updated for assignment 2
+        context.uniform1f(gpu_addresses.animation_time, gpu_state.animation_time / 1000);
+        if (material.texture && material.texture.ready) {
+            // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
+            context.uniform1i(gpu_addresses.texture, 0);
+            // For this draw, use the texture image from correct the GPU buffer:
+            material.texture.activate(context);
+        }
+    }
+    // TODO:  Modify the shader below (right now it's just the same fragment shader as Textured_Phong) for requirement #6.
+    fragment_glsl_code() {
+        return this.shared_glsl_code() + `
+            varying vec2 f_tex_coord;
+            uniform sampler2D texture;
+            uniform float animation_time;
+            
+            void main(){
+                // Sample the texture image in the correct place:
+                float x_translate =  mod(f_tex_coord.x + 0.1 * animation_time, 2. * animation_time);
+                float y_translate =  f_tex_coord.y + 5.0;
+                vec4 tex_color = texture2D( texture, vec2(x_translate, y_translate));
+                if( tex_color.w < .01 ) discard;
+                                                                         // Compute an initial (ambient) color:
+                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
+                                                                         // Compute the final color with contributions from lights:
+                gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
+        } `;
+    }
 }

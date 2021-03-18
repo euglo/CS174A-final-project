@@ -2,6 +2,7 @@ import {defs, tiny} from './examples/common.js';
 import { StoneWall, CarEnd, Ceiling, Doors, Floor, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 import { Movement } from './Movement.js';
 import Palette from './constants/Palette.js';
+import songs from './constants/Songs.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -51,12 +52,44 @@ export class Main extends Scene {
         this.detached = false;
 
         this.normal_light = false;
+
+        // for legacy browsers
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.audioContext = new AudioContext();
+
+        // put audio in array and loop through to play
+        this.audioSongs = document.getElementsByClassName('audio-music');
+        this.num_songs = this.audioSongs.length; // keep track of total # of songs
+        this.audioPlaying = false; // tracks if any song is currently playing
+        this.current_song = 0; // index of song playing
+        // connect song elements to destination
+        for(const audioSong of this.audioSongs) {
+            const music = this.audioContext.createMediaElementSource(audioSong);
+            music.connect(this.audioContext.destination);
+        }
+        
+        this.audioTrain = document.getElementById('audio-train');
+        const train = this.audioContext.createMediaElementSource(this.audioTrain);
+        // send thru gain node so we can control volume
+        this.gainNode = this.audioContext.createGain();
+        // initial gain (volume) is at 0
+        this.gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        train.connect(this.gainNode);
+        this.gainNode.connect(this.audioContext.destination);
     }
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Train start", ["n"], () => {
             if (!this.train_start && !this.train_stop) {
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+
+                this.audioTrain.play(); // start sound
+                // fade in sound
+                this.gainNode.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + 10);
+
                 this.train_start = true;
                 this.train_stop = false;
             }
@@ -65,6 +98,8 @@ export class Main extends Scene {
             if (!this.train_start && !this.train_stop) {
                 this.train_stop = true;
                 this.train_start = false;
+                // slowly fade out sound (api is buggy and doesn't always work rip)
+                this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 30);
             }
         });
         this.new_line();
@@ -109,6 +144,29 @@ export class Main extends Scene {
         this.key_triggered_button("Add light for normal mapping", ["l"], () => {
             this.normal_light ^= 1;
         });
+
+        this.new_line();
+        this.key_triggered_button("Play/pause music", ["Control", "p"], () => {
+            // console.log(this.audioContext.state);
+            if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume();
+            }
+        
+            // play or pause track depending on state
+            if (this.audioPlaying === false) {
+                this.audioSongs[this.current_song].play();
+                this.audioPlaying = true;
+            } else if (this.audioPlaying === true) {
+                this.audioSongs[this.current_song].pause();
+                this.audioPlaying = false;
+            }
+        });
+        this.key_triggered_button("Change song", ["Control", "s"], () => {
+            this.audioSongs[this.current_song].pause(); // stop playing current song
+            this.current_song = (this.current_song + 1) % this.audioSongs.length;
+            this.audioSongs[this.current_song].currentTime = 0; // start song from beginning
+            this.audioSongs[this.current_song].play();
+        })
     }
 
     render_train_cars(context, program_state, angle, num_cars=3, space_btwn_cars=5) {
@@ -137,7 +195,7 @@ export class Main extends Scene {
             this.ceiling.render(context, program_state, this.palette, 5, depth * 2, length * 2, height, train_car_translation);
 
             // opposite side
-            this.wall.render(context, program_state, this.palette, length, 5, 3, -depth, train_car_translation);
+            this.wall.render(context, program_state, this.palette, songs[this.current_song], length, 5, 3, -depth, train_car_translation);
             this.car_end.render(context, program_state, this.palette, depth * 2, height, 10, train_car_translation.times(Mat4.translation(-length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
             this.handlebars.render(context, program_state, this.palette, t, angle, this.train_move, 13, length * 2, train_car_translation.times(Mat4.translation(0, 9, 2 - depth)));
             this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
@@ -151,7 +209,7 @@ export class Main extends Scene {
             this.doors.render(context, program_state, this.palette, 10, 0.25, train_car_translation.times(Mat4.translation(-door_length, 0, -depth)));
 
             // other side
-            this.wall.render(context, program_state, this.palette, length, 5, 3, depth, train_car_translation);
+            this.wall.render(context, program_state, this.palette, songs[this.current_song], length, 5, 3, 0, train_car_translation.times(Mat4.scale(-1, 1, -1)).times(Mat4.translation(0, 0, -depth)));
             this.car_end.render(context, program_state, this.palette, depth * 2, height, 10, train_car_translation.times(Mat4.translation(length, 0, 0)).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)));
             this.handlebars.render(context, program_state, this.palette, t, angle, this.train_move, 13, length * 2, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(0, 9, 2 - depth)));
             this.vertical_bar.render(context, program_state, this.palette, height, train_car_translation.times(Mat4.scale(1, 1, -1)).times(Mat4.translation(inner_bar_length, height / 2, bar_depth)));
