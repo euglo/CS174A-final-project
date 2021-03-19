@@ -89,7 +89,7 @@ class Doors extends CustomObject {
     // top window frame
     this.shapes.cube.draw(context, program_state, top_window_frame_transform, this.materials.door.override({color: palette.door}));
     // window
-    this.shapes.cube.draw(context, program_state, window_transform, this.materials.window);
+    //this.shapes.cube.draw(context, program_state, window_transform, this.materials.window);
     // handle
     this.shapes.cube.draw(context, program_state, handle_transform, this.materials.door_frame.override({color: palette.door_frame}));
     // door seal
