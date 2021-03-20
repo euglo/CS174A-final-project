@@ -11,5 +11,6 @@ import SkyBox from './SkyBox.js'
 import CarEnd from './CarEnd.js';
 import Ceiling from './Ceiling.js';
 import Wall from "./Wall.js";
+import Dolphin from './Dolphin.js';
 
-export { StoneWall, CarEnd, Ceiling, Doors, Floor, Ground, Pillar, Seat, SkyBox, WaterTile, Handlebars, VerticalBar, Wall };
+export { StoneWall, CarEnd, Ceiling, Dolphin, Doors, Floor, Ground, Pillar, Seat, SkyBox, WaterTile, Handlebars, VerticalBar, Wall };

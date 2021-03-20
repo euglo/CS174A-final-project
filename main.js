@@ -1,5 +1,5 @@
 import {defs, tiny} from './examples/common.js';
-import { StoneWall, CarEnd, Ceiling, Doors, Floor, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
+import { StoneWall, CarEnd, Ceiling, Dolphin, Doors, Floor, Ground, Handlebars, Pillar, Seat, SkyBox, VerticalBar, Wall, WaterTile } from './objects/index.js';
 import { Movement } from './Movement.js';
 import Palette from './constants/Palette.js';
 import songs from './constants/Songs.js';
@@ -30,6 +30,8 @@ export class Main extends Scene {
         this.water_tile = new WaterTile();
         this.pillar = new Pillar();
         this.sky_box = new SkyBox();
+
+        this.dolphin = new Dolphin();
         
         this.ceiling = new Ceiling();
         this.wall = new Wall();
@@ -299,5 +301,7 @@ export class Main extends Scene {
         this.stoneWall.render(context, program_state, 2, 200, 25, unmod_dist, Mat4.translation(0, 8, 20));
         this.render_train_cars(context, program_state, angle, 2, 3);
         this.sky_box.render(context, program_state);
+
+        this.dolphin.render(context, program_state, 0.75, Mat4.translation(0, 0, -80));
     }
 }
