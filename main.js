@@ -47,8 +47,12 @@ export class Main extends Scene {
 
         this.horizontal_look = 0;
         this.vertical_look = 5.5;
+        this.z_look = 0;
+        this.unit_constant = 20;
         this.dt = 0;
         this.detached = false;
+        this.length_wise = false;
+        this.x = -24;
 
         this.normal_light = false;
     }
@@ -70,36 +74,59 @@ export class Main extends Scene {
         this.new_line();
         this.key_triggered_button("Look left", ["a"], () => {
             if (this.horizontal_look > -9) {
-                this.horizontal_look -= 20 * this.dt;
+                this.horizontal_look -= this.unit_constant * this.dt;
+            }
+            if (this.z_look > -30) {
+                this.z_look -= 2 * this.unit_constant * this.dt;
             }
         })
         this.key_triggered_button("Look right", ["d"], () => {
             if (this.horizontal_look < 9) {
-                this.horizontal_look += 20 * this.dt;
+                this.horizontal_look += this.unit_constant * this.dt;
+            }
+            if (this.z_look < 30) {
+                this.z_look += 2 * this.unit_constant * this.dt;
             }
         });
         this.key_triggered_button("Look up", ["w"], () => {
             if (this.vertical_look < 8) {
-                this.vertical_look += 20 * this.dt;
+                this.vertical_look += this.unit_constant * this.dt;
             }
         })
         this.key_triggered_button("Look down", ["s"], () => {
             if (this.vertical_look > -3) {
-                this.vertical_look -= 20 * this.dt;
+                this.vertical_look -= this.unit_constant * this.dt;
             }
         });
         this.new_line();
         this.key_triggered_button("Detach", ["y"], () => {
             this.detached = true;
+            this.length_wise = false;
         });
             
         this.key_triggered_button("Reattach", ["t"], () => {
             this.detached = false;
-            this.initial_camera_location = Mat4.look_at(vec3(0, 5, 10), vec3(0, 5, 0), vec3(0, 1, 0));
+            this.length_wise = false;
+            this.horizontal_look = 0;
+            this.vertical_look = 5.5;
+        });
+        this.new_line();
+        this.key_triggered_button("Attach length-wise", ["g"], () => {
+            this.length_wise = true;
             this.horizontal_look = 0;
             this.vertical_look = 5.5;
         });
 
+        this.key_triggered_button("Move forward", ["i"], () => {
+            if (this.x < 24) {
+                this.x += 2 * this.unit_constant * this.dt;
+            }
+        })
+        this.key_triggered_button("Move backwards", ["k"], () => {
+            if (this.x > -24) {
+                this.x -= 2 * this.unit_constant * this.dt;
+            }
+        });
         this.new_line();
         this.key_triggered_button("Change train colors", ["c"], () => {
             this.palette_num = (this.palette_num + 1) % Palette.length; // loop palette colors
@@ -172,8 +199,10 @@ export class Main extends Scene {
         this.dt = dt;
         // display():  Called once per frame of animation.
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
-        if (!this.detached) {
+        if (!this.detached && !this.length_wise) {
             this.initial_camera_location =  Mat4.look_at(vec3(0, 6, 7), vec3(this.horizontal_look, this.vertical_look, 0), vec3(0, 1, 0));
+        } else if(this.length_wise) {
+            this.initial_camera_location =  Mat4.look_at(vec3(this.x, 6, 0), vec3(30, 5.5, this.z_look), vec3(0, 1, 0));
         }
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
