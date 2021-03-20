@@ -54,8 +54,8 @@ export default class Wall extends CustomObject {
 
         const window_transform = model_transform.times(Mat4.translation(0,window_position,z_axis)).times(Mat4.scale(window_width, window_height, 0));
 
-        const door_side_transform_one = model_transform.times(Mat4.translation(-20.3, window_position, z_axis)).times(Mat4.scale(4.5, 15, 0));
-        const door_side_transform_two = model_transform.times(Mat4.translation(20.3, window_position, z_axis)).times(Mat4.scale(4.5, 15, 0));
+        const door_side_transform_one = model_transform.times(Mat4.translation(-20.05, window_position + 0.1, z_axis)).times(Mat4.scale(4.7, 5.95, 0));
+        const door_side_transform_two = model_transform.times(Mat4.translation(20.05, window_position + 0.1, z_axis)).times(Mat4.scale(4.7, 5.95, 0));
         const door_top_transform_one = model_transform.times(Mat4.translation(-13, 11, z_axis)).times(Mat4.scale(3, 1, 0));
         const door_top_transform_two = model_transform.times(Mat4.translation(13, 11, z_axis)).times(Mat4.scale(3, 1, 0));
 
