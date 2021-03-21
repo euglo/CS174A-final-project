@@ -152,6 +152,8 @@ export class Main extends Scene {
             this.length_wise = true;
             this.horizontal_look = 0;
             this.vertical_look = 5.5;
+            this.z_look = 0;
+            this.x = -24;
         });
 
         this.key_triggered_button("Move forward", ["i"], () => {
@@ -172,6 +174,16 @@ export class Main extends Scene {
 
         this.key_triggered_button("Add light for normal mapping", ["l"], () => {
             this.normal_light ^= 1;
+        });
+        this.key_triggered_button("View wall and sand", [";"], () => {
+            this.detached = true;
+            this.length_wise = false;
+            this.initial_camera_location = Mat4.look_at(vec3(0, 27, 4), vec3(0,-3.5, 30), vec3(0, 1, 0));
+        });
+        this.key_triggered_button("View ocean", ["["], () => {
+            this.detached = true;
+            this.length_wise = false;
+            this.initial_camera_location = Mat4.look_at(vec3(2, 15, -6), vec3(0,0, -40), vec3(0, 1, 0));
         });
 
         this.new_line();
@@ -262,7 +274,7 @@ export class Main extends Scene {
         if (!this.detached && !this.length_wise) {
             this.initial_camera_location =  Mat4.look_at(vec3(0, 6, 7), vec3(this.horizontal_look, this.vertical_look, 0), vec3(0, 1, 0));
         } else if(this.length_wise) {
-            this.initial_camera_location =  Mat4.look_at(vec3(this.x, 6, 0), vec3(30, 5.5, this.z_look), vec3(0, 1, 0));
+            this.initial_camera_location =  Mat4.look_at(vec3(this.x, 5.5, 0), vec3(30, 5.5, this.z_look), vec3(0, 1, 0));
         }
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
